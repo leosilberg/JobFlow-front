@@ -17,7 +17,7 @@ import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 
 type DashboardPageProps = {};
 
@@ -148,22 +148,39 @@ export default function DashboardPage({}: DashboardPageProps) {
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
-        <div className="flex gap-4 items-center flex-row justify-center">
+        <div className="flex gap-6 flex-wrap lg:items-start items-center lg:flex-row flex-col justify-center lg:py-10 p-6 bg-gradient-to-tr from-orange-100 via-pink-200 to-red-300 dark:bg-gradient-to-tr dark:from-gray-800 dark:via-gray-900 dark:to-black">
           {columns.map((col) => (
             <StatusColumn
               key={col.title}
               column={col}
               jobs={jobs?.filter((job) => job.status === col.id)}
+              className="bg-gradient-to-r from-orange-50 via-pink-100 to-red-100 dark:from-gray-700 dark:via-gray-800 dark:to-black p-5 rounded-2xl text-gray-800 dark:text-white shadow-lg hover:shadow-2xl transition-shadow duration-200 ease-in-out"
             />
           ))}
         </div>
         {"document" in window &&
           createPortal(
             <DragOverlay>
-              {activeTask && <JobSummary job={activeTask} isOverlay />}
+              {activeTask && (
+                <div className="p-2 bg-gradient-to-r from-pink-100 via-red-200 to-orange-300 dark:bg-gradient-to-r dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 rounded-2xl transform transition-transform duration-200 ease-in-out">
+                  <JobSummary job={activeTask} isOverlay />
+                </div>
+              )}
             </DragOverlay>,
             document.body
           )}
+        <footer className="w-full bg-gradient-to-br from-orange-100 via-pink-200 to-red-300 dark:from-gray-800 dark:via-gray-900 dark:to-black text-center text-gray-700 dark:text-gray-400 py-8">
+          <p>&copy; 2024 All rights reserved.</p>
+          <div className="mt-4">
+            <Link to="#" className="text-blue-600 dark:text-blue-400">
+              Privacy Policy
+            </Link>
+            {" | "}
+            <Link to="#" className="text-blue-600 dark:text-blue-400">
+              Terms of Service
+            </Link>
+          </div>
+        </footer>
       </DndContext>
       <Outlet />
     </>

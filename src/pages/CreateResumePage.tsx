@@ -39,6 +39,49 @@ import { motion } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
+import {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  AlignmentType,
+  BorderStyle,
+} from "docx";
+import { saveAs } from "file-saver";
+
+interface EducationItem {
+  degree: string;
+  institution: string;
+  graduationYear: string;
+  description: string;
+}
+
+interface ExperienceItem {
+  jobTitle: string;
+  company: string;
+  startYear: string;
+  endYear: string;
+  description: string;
+}
+
+interface MilitaryItem {
+  role: string;
+  startYear: string;
+  endYear: string;
+}
+
+interface UserData {
+  name: string;
+  phone: string;
+  email: string;
+  profile: string;
+  education: EducationItem[];
+  experience: ExperienceItem[];
+  military: MilitaryItem[];
+  skills: string;
+  languages: string;
+}
+
 const formSchema = z.object({
   name: z
     .string()
@@ -67,7 +110,12 @@ const formSchema = z.object({
           .string()
           .min(2, "Institution must be at least 2 characters")
           .max(100, "Institution can't be longer than 100 characters"),
-        graduationYear: z.date(),
+        graduationYear: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
         description: z
           .string()
           .min(10, "Description must be at least 10 characters")
@@ -86,8 +134,18 @@ const formSchema = z.object({
           .string()
           .min(2, "Company must be at least 2 characters")
           .max(100, "Company can't be longer than 100 characters"),
-        startDate: z.date(),
-        endDate: z.date(),
+        startDate: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
+        endDate: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
         description: z
           .string()
           .min(10, "Description must be at least 10 characters")
@@ -106,8 +164,18 @@ const formSchema = z.object({
           .string()
           .min(2, "Role must be at least 2 characters")
           .max(50, "Role can't be longer than 50 characters"),
-        startDate: z.date(),
-        endDate: z.date(),
+        startDate: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
+        endDate: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
         description: z
           .string()
           .min(10, "Description must be at least 10 characters")
@@ -190,8 +258,200 @@ export default function CreateResumePage({}: CreateResumePageProps) {
     return true;
   };
 
+  const generateAndDownloadDocument = (userData: UserData): void => {
+    try {
+      // Helper function to create a list of items
+      const createList = (items: any[], itemFields: string[]): Paragraph[] => {
+        return items.map(
+          (item, index) =>
+            new Paragraph({
+              children: itemFields.map(
+                (field, i) =>
+                  new TextRun(
+                    `${item[field as keyof typeof item]}${
+                      i < itemFields.length - 1 ? "\n" : ""
+                    }`
+                  )
+              ),
+              spacing: { after: 100 },
+            })
+        );
+      };
+
+      const doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: userData.name, bold: true, size: 32 }),
+                  new TextRun({ text: `\n${userData.phone}`, size: 24 }),
+                  new TextRun({ text: `\n${userData.email}`, size: 24 }), // Added email
+                ],
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "PROFILE",
+
+                spacing: { after: 100 },
+              }),
+              new Paragraph({
+                text: userData.profile,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "EDUCATION",
+
+                spacing: { after: 100 },
+              }),
+              ...createList(userData.education, [
+                "degree",
+                "institution",
+                "graduationYear",
+                "description",
+              ]),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "WORK EXPERIENCE",
+
+                spacing: { after: 100 },
+              }),
+              ...createList(userData.experience, [
+                "jobTitle",
+                "company",
+                "startYear",
+                "endYear",
+                "description",
+              ]),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "MILITARY SERVICE",
+
+                spacing: { after: 100 },
+              }),
+              ...createList(userData.military, [
+                "role",
+                "startYear",
+                "endYear",
+              ]),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "SKILLS",
+
+                spacing: { after: 100 },
+              }),
+              new Paragraph({
+                text: userData.skills,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "LANGUAGES",
+
+                spacing: { after: 100 },
+              }),
+              new Paragraph({
+                text: userData.languages,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+            ],
+          },
+        ],
+      });
+
+      Packer.toBlob(doc).then((blob) => {
+        saveAs(blob, "cv.docx");
+        console.log("Document generated and downloaded successfully!");
+      });
+    } catch (error) {
+      console.error("Error generating document:", error);
+    }
+  };
+
   const onSubmit = (data: CreateResumePageProps) => {
-    console.log("Form Submitted:", data);
+    const parsedData = {
+      ...data,
+      education: data.education?.map((edu) => ({
+        ...edu,
+        graduationYear: new Date(edu.graduationYear),
+      })),
+      experience: data.experience?.map((exp) => ({
+        ...exp,
+        startDate: new Date(exp.startDate),
+        endDate: new Date(exp.endDate),
+      })),
+      military: data.military?.map((mil) => ({
+        ...mil,
+        startDate: new Date(mil.startDate),
+        endDate: new Date(mil.endDate),
+      })),
+    };
+
+    console.log("Form Submitted:", parsedData);
     toast({
       title: "You submitted the CV.",
       variant: "default",
@@ -206,7 +466,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="bg-gradient-to-r from-orange-100 via-pink-200 to-red-300 dark:from-gray-800 dark:via-gray-900 dark:to-black text-gray-700 dark:text-white shadow-xl rounded-2xl p-6 md:p-10 max-w-full md:max-w-5xl mx-auto">
+      <Card className="bg-gradient-to-r lg:my-[3em] from-orange-100 via-pink-200 to-red-300 dark:from-gray-800 dark:via-gray-900 dark:to-black text-gray-700 dark:text-white shadow-xl rounded-2xl p-6 md:p-10 max-w-full md:max-w-5xl mx-auto">
         <CardHeader className="border-b-[0.2em] border-red-300 dark:border-gray-700 pb-4 md:pb-6 mb-6 md:mb-10">
           <CardTitle className="text-2xl md:text-4xl font-extrabold text-gray-700 dark:text-white">
             Create Your CV
@@ -322,7 +582,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       });
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <span className="relative flex items-center">
                     <FaPlus className="mr-2" /> Add Education
@@ -391,7 +651,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       });
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Experience
                 </Button>
@@ -466,7 +726,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       });
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Military Experience
                 </Button>
@@ -538,7 +798,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       form.setValue("skills", [...skills, ""]);
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Skill
                 </Button>
@@ -588,7 +848,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       form.setValue("languages", [...languages, ""]);
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Language
                 </Button>

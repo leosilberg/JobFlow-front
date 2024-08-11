@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader } from "./ui/card.tsx";
 import { CSS } from "@dnd-kit/utilities";
 import { JobSummary } from "./JobSummary.tsx";
 import { ScrollArea } from "./ui/scroll-area.tsx";
+import { FaRegPlusSquare } from "react-icons/fa";
+import { Link } from "react-router-dom";
+
 export interface Column {
   title: string;
   id: number;
@@ -16,6 +19,7 @@ interface StatusColumnProps {
   column: Column;
   jobs?: IJob[];
   isOverlay?: boolean;
+  className?: string;
 }
 
 export function StatusColumn({
@@ -68,11 +72,17 @@ export function StatusColumn({
         dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
       })}
     >
-      <CardHeader className="p-4 font-semibold border-b-2 text-left flex flex-row space-between items-center">
-        <p> {column.title}</p>
+      <CardHeader className="p-4 font-semibold border-b-2 border-orange-200 dark:border-secondary text-left flex flex-row items-center">
+        <div className="flex flex-row items-center justify-between w-full">
+          <p>{column.title}</p>
+          <Link to={`/dashboard/create?status=${column.title}`}>
+            <FaRegPlusSquare className="text-[1.2em] text-orange-600 " />
+          </Link>
+        </div>
       </CardHeader>
+
       <ScrollArea>
-        <CardContent className="flex flex-grow flex-col gap-2 p-2">
+        <CardContent className="flex flex-grow flex-col  gap-2 p-2">
           <SortableContext items={tasksIds}>
             {jobs.map((job) => (
               <JobSummary key={job._id} job={job} />
