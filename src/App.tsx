@@ -9,6 +9,7 @@ import DashboardPage from "./pages/DashboardPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
 import SignupPage from "./pages/SignupPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
+import { Test } from "./pages/Test.tsx";
 
 interface AppProps {}
 
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
       {
         path: "create-resume",
         element: <CreateResumePage />,
+      },
+      {
+        path: "test",
+        element: <Test />,
       },
       {
         path: "auth",

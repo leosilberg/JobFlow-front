@@ -37,82 +37,55 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
-export type UserDetailsFormValues = z.infer<typeof formSchema>;
+export type JobValues = z.infer<typeof formSchema>;
 const formSchema = z.object({
-  id: z.string().regex(/^\d{8}$/, "Must contain only digits"),
-  gender: z.enum(["male", "female", "other"]),
-  address: z.enum(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]),
-  dob: z
-    .date()
-    .max(new Date(new Date().setFullYear(new Date().getFullYear() - 18)), {
-      message: "You must be at least 18 years old",
-    }),
-  notifications: z.boolean().optional(),
-  agreement: z.literal(true),
+  title: z.string().min(2, "title must be at least 2 characters long"),
+  company: z.string().min(2, "company must be at least 2 characters long"),
+  location: z.string().min(2, "location must be at least 2 characters long"),
+  description: z
+    .string()
+    .min(2, "description must be at least 2 characters long"),
+  salary: z.number().min(0, "Salary must be a positive number").optional(),
+  link: z.string().url("Must be a valid URL"),
+  status: z.enum(["wishlist", "applied", "interview", "offer", "rejected"]),
+  interview_date: z.date().optional(),
+  contract_link: z.string().url().optional(),
 });
 
 export default function CreateJobPage() {
   const navigate = useNavigate();
-  const form = useForm<UserDetailsFormValues>({
+  const form = useForm<JobValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id: "",
+      title: "",
+      company: "",
+      location: "",
+      description: "",
+      salary: undefined,
+      link: "",
+      status: "wishlist",
+      interview_date: undefined,
+      contract_link: "",
     },
   });
-  function onSubmit(values: UserDetailsFormValues) {
-    console.log(`UserDetailsPage: `, values);
+
+  function onSubmit(values: JobValues) {
+    console.log("JobDetails: ", values);
   }
 
   return (
     <Dialog open onOpenChange={(open) => !open && navigate("..")}>
       <DialogContent>
-        <DialogHeader></DialogHeader>
+        <DialogHeader>Create Job</DialogHeader>
         <div className="flex items-center justify-center overflow-auto px-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <FormField
                 control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>Gender</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col space-y-1"
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="male" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Male</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="female" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Femal</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="other" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Other</FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="id"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>ID</FormLabel>
+                    <FormLabel>Title</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -120,29 +93,16 @@ export default function CreateJobPage() {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="address"
+                name="company"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a city" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="New York">New York</SelectItem>
-                        <SelectItem value="Los Angeles">Los Angeles</SelectItem>
-                        <SelectItem value="Chicago">Chicago</SelectItem>
-                        <SelectItem value="Houston">Houston</SelectItem>
-                        <SelectItem value="Phoenix">Phoenix</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Company</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -150,10 +110,100 @@ export default function CreateJobPage() {
 
               <FormField
                 control={form.control}
-                name="dob"
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="salary"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Salary</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(parseFloat(e.target.value))
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="link"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="wishlist">Wishlist</SelectItem>
+                          <SelectItem value="applied">Applied</SelectItem>
+                          <SelectItem value="interview">Interview</SelectItem>
+                          <SelectItem value="offer">Offer</SelectItem>
+                          <SelectItem value="rejected">Rejected</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="interview_date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Date of birth</FormLabel>
+                    <FormLabel>Interview Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -177,9 +227,14 @@ export default function CreateJobPage() {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            if (date) {
+                              field.onChange(date);
+                            }
+                          }}
                           disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
+                            date < new Date() &&
+                            date.getTime() < new Date().getTime()
                           }
                           initialFocus
                         />
@@ -189,49 +244,22 @@ export default function CreateJobPage() {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="notifications"
+                name="contract_link"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem>
+                    <FormLabel>Contract Link</FormLabel>
                     <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
+                      <Input {...field} />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Notification Emails</FormLabel>
-                      <FormDescription>
-                        Do you want to receive emails to notify about new
-                        features?
-                      </FormDescription>
-                    </div>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="agreement"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Terms and Conditions</FormLabel>
-                      <FormDescription>
-                        By clicking this checkbox you are agreeing to the terms
-                        and conditions
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-              <Button>Submit</Button>
+
+              <Button type="submit">Submit</Button>
               {form.formState.errors.root && (
                 <div className="text-red-600">
                   {form.formState.errors.root.message}
