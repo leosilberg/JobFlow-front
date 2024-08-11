@@ -1,4 +1,4 @@
-import { Job } from "@/types/job.types.ts";
+import { IJob } from "@/types/job.types.ts";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { cva } from "class-variance-authority";
 import { useMemo } from "react";
@@ -12,16 +12,21 @@ import { Link } from "react-router-dom";
 
 export interface Column {
   title: string;
+  id: number;
 }
 
 interface StatusColumnProps {
   column: Column;
-  jobs: Job[];
+  jobs?: IJob[];
   isOverlay?: boolean;
   className?: string;
 }
 
-export function StatusColumn({ column, jobs, isOverlay }: StatusColumnProps) {
+export function StatusColumn({
+  column,
+  jobs = [],
+  isOverlay,
+}: StatusColumnProps) {
   const tasksIds = useMemo(() => {
     return jobs.map((job) => job._id);
   }, [jobs]);
@@ -34,7 +39,7 @@ export function StatusColumn({ column, jobs, isOverlay }: StatusColumnProps) {
     transition,
     isDragging,
   } = useSortable({
-    id: column.title,
+    id: column.id,
     data: {
       type: "Column",
       column,

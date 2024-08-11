@@ -1,4 +1,4 @@
-export type Job = {
+export type IJob = {
   _id: string;
   userId: string;
   title: string;
@@ -7,7 +7,8 @@ export type Job = {
   description: string;
   salary?: string;
   link: string;
-  status: string;
+  status: number;
+  order: number;
   custom_resume_link?: string;
   interview_date?: string;
   contract_link?: string;

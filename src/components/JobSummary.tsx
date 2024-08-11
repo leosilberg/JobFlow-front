@@ -1,11 +1,11 @@
-import { Job } from "@/types/job.types.ts";
+import { IJob } from "@/types/job.types.ts";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cva } from "class-variance-authority";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "./ui/card.tsx";
 type JobSummaryProps = {
-  job: Job;
+  job: IJob;
   isOverlay?: boolean;
 };
 
