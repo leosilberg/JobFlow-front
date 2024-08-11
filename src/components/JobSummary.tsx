@@ -53,8 +53,8 @@ export function JobSummary({ job, isOverlay }: JobSummaryProps) {
       {...listeners}
       onClick={() => navigate(`/job/${job._id}`)}
     >
-      <CardHeader className="px-3 py-3 space-between flex flex-row border-b-2 border-secondary relative"></CardHeader>
-      <CardContent className="px-3 pt-3 pb-6 text-left whitespace-pre-wrap">
+      <CardHeader className="px-3 py-3 space-between flex flex-row border-b-2  relative"></CardHeader>
+      <CardContent className="px-3 pt-3 pb-6 text-left  whitespace-pre-wrap">
         {job.title}
       </CardContent>
     </Card>

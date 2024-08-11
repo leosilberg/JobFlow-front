@@ -17,6 +17,13 @@ import svg2 from "../imgs/svg2.svg";
 import { Link } from "react-router-dom";
 import { MdArrowOutward } from "react-icons/md";
 import people from "../imgs/bgjoin3.jpg";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const HomePage: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -94,6 +101,33 @@ const HomePage: React.FC = () => {
     },
   ];
 
+  const testimonials = [
+    {
+      text: "JobFlow helped me land my dream job in no time!",
+      name: "- Jane Doe",
+    },
+    {
+      text: "The templates are modern and easy to use.",
+      name: "- John Smith",
+    },
+    {
+      text: "I love the live preview feature!",
+      name: "- Sarah Lee",
+    },
+    {
+      text: "JobFlow helped me land my dream job in no time!",
+      name: "- Jane Doe",
+    },
+    {
+      text: "The templates are modern and easy to use.",
+      name: "- John Smith",
+    },
+    {
+      text: "I love the live preview feature!",
+      name: "- Sarah Lee",
+    },
+  ];
+
   return (
     <div className="relative flex flex-col items-center bg-white">
       {/* Wrapper for video background */}
@@ -115,7 +149,7 @@ const HomePage: React.FC = () => {
         {/* Content that will have the video background */}
         <div className="relative z-20 flex flex-col items-center text-center mt-10">
           <header className="relative w-full">
-            <div className="flex text-center lg:px-[9.8em] px-2 justify-start gap-6">
+            <div className="flex text-center lg:px-[9.8em] justify-center lg:justify-start gap-6">
               <img src={svg1} alt="SVG 1" className="w-[130px] text-gray-300" />
               <img src={svg2} alt="SVG 2" className="w-[130px] text-gray-300" />
             </div>
@@ -177,31 +211,33 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Content that will not have the video background */}
-      <section className="mt-20 w-full lg:px-[9.8em] px-2 ">
-        <h2 className="text-primaryBlack text-4xl font-extrabold lg:text-5xl">
+      <section className="py-20 w-full lg:px-[9.8em] px-2 bg-gradient-to-r dark:from-gray-800 dark:via-gray-900 dark:to-black text-gray-700 dark:text-white">
+        <h2 className="text-primaryBlack dark:text-gray-100 text-4xl font-extrabold lg:text-5xl">
           Frequently Asked Questions
         </h2>
         <div className="mt-12">
           {faqData.map((faq, index) => (
             <div
               key={index}
-              className="cursor-pointer border-t-2 border-solid border-gray-200"
+              className="cursor-pointer border-t-2 border-solid border-gray-200 dark:border-gray-700"
             >
               <div
-                className="flex items-center justify-between py-6 text-base font-bold text-primaryBlack hover:opacity-80"
+                className="flex items-center justify-between py-6 text-base font-bold text-primaryBlack dark:text-gray-100 hover:opacity-80"
                 onClick={() => toggleFAQ(index)}
               >
                 <p>{faq.question}</p>
                 <div>
                   {activeIndex === index ? (
-                    <FaMinus className="w-5 h-5 text-orange-600" />
+                    <FaMinus className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                   ) : (
-                    <FaPlus className="w-5 h-5 text-orange-600" />
+                    <FaPlus className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                   )}
                 </div>
               </div>
               {activeIndex === index && (
-                <div className="pb-8 text-base text-gray-700">{faq.answer}</div>
+                <div className="pb-8 text-base text-gray-700 dark:text-gray-300">
+                  {faq.answer}
+                </div>
               )}
             </div>
           ))}
@@ -209,74 +245,75 @@ const HomePage: React.FC = () => {
       </section>
 
       <div
-        className="lg:px-[9.8em] px-2 my-[2em] py-[2em] flex w-full flex-col items-start justify-end bg-cover bg-center"
+        className="lg:px-[9.8em] px-2 bg-gradient-to-r dark:from-gray-800 dark:via-gray-900 dark:to-black   py-[2em] flex w-full flex-col items-start justify-end bg-cover bg-center  dark:text-white"
         style={{
           backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.9) 20%, rgba(255, 255, 255, 0.7) 40%, rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0.1) 80%, rgba(255, 255, 255, 0) 100%), url(${people})`,
         }}
       >
-        <h3 className="whitespace-pre leading-none text-gray-800">
-          <span className="block text-5xl md:inline-block">Join over </span>
-          <span className="block text-6xl text-orange-700 font-bold md:inline-block">
+        <h3 className="whitespace-pre leading-none text-gray-800 dark:text-gray-100">
+          <span className="block text-5xl md:inline-block dark:text-gray-600">
+            Join over{" "}
+          </span>
+          <span className="block text-6xl text-orange-700 dark:text-orange-500 font-bold md:inline-block">
             1.4 million
           </span>
-          <span className="block text-5xl md:inline-block"> users</span>
+          <span className="block text-5xl md:inline-block dark:text-gray-600">
+            {" "}
+            users
+          </span>
         </h3>
-        <p className="mt-10 text-lg leading-[22px] text-gray-600 lg:mt-5 lg:w-[595px]">
+        <p className="mt-10 text-lg leading-[22px] lg:text-gray-600 lg:mt-5 text-gray-800 lg:w-[595px]">
           Empower your career growth and success today and join 1.4 million
           users in transforming your professional path with JobFlow.
         </p>
         <Link
           to="/dashboard"
-          className="flex items-center gap-3 justify-center bg-gradient-to-tr from-red-200 to-orange-200 h-18 w-max mt-8 lg:mt-13 mb-7 lg:mb-16 rounded-xl py-5 px-5 text-xl font-bold text-black focus-visible:outline-blue-600"
+          className="flex items-center gap-3 justify-center border-2 border-orange-400 dark:border-orange-500 bg-gradient-to-r from-gray-100 to-orange-100 dark:from-gray-700 dark:to-orange-500 h-18 w-max mt-8 lg:mt-13 mb-7 lg:mb-16 rounded-xl py-3 px-4 text-xl font-bold text-black dark:text-white focus-visible:outline-blue-600"
         >
           <MdArrowOutward />
-          <span>
-            Dive In – No Cost <span className="pl-0.5">🌊</span>
-          </span>
+          <span>Take Me To Dashboard</span>
         </Link>
       </div>
 
-      <section className="mt-16 w-full max-w-4xl text-center">
-        <h2 className="text-primaryBlack text-4xl font-extrabold lg:text-5xl">
+      <section className="py-16 w-full lg:px-[9.8em] px-2 bg-gradient-to-r dark:from-gray-800 dark:via-gray-900 dark:to-black text-center">
+        <h2 className="text-primaryBlack dark:text-gray-100 text-4xl font-extrabold lg:text-5xl">
           What Our Users Say
         </h2>
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[
-            {
-              text: "JobFlow helped me land my dream job in no time!",
-              name: "- Jane Doe",
-            },
-            {
-              text: "The templates are modern and easy to use.",
-              name: "- John Smith",
-            },
-            {
-              text: "I love the live preview feature!",
-              name: "- Sarah Lee",
-            },
-          ].map((testimonial, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.05, translateY: -5 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative p-8 bg-gray-50 rounded-lg shadow-lg transform transition-transform duration-200 ease-out flex flex-col items-center hover:shadow-xl border border-gray-200"
-            >
-              <div className="absolute inset-0 w-full h-full bg-gray-200 opacity-0 rounded-lg hover:opacity-10 transition-opacity duration-200"></div>
-              <p className="italic text-gray-600 text-lg">{testimonial.text}</p>
-              <p className="mt-4 font-bold text-gray-900">{testimonial.name}</p>
-            </motion.div>
-          ))}
+        <div className="mt-10">
+          <Carousel className="relative">
+            <CarouselContent className="flex gap-8 mx-[3em]">
+              {testimonials.map((testimonial, index) => (
+                <CarouselItem key={index} className=" max-w-[20em]">
+                  <motion.div
+                    whileHover={{ scale: 1.05, translateY: -5 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="relative p-8 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg transform transition-transform duration-200 ease-out flex flex-col items-center hover:shadow-xl border border-gray-200 dark:border-gray-700"
+                  >
+                    <div className="absolute inset-0 w-full h-full bg-gray-200 dark:bg-gray-900 opacity-0 rounded-lg hover:opacity-10 transition-opacity duration-200"></div>
+                    <p className="italic text-gray-600 dark:text-gray-300 text-lg">
+                      {testimonial.text}
+                    </p>
+                    <p className="mt-4 font-bold text-gray-900  dark:text-orange-600">
+                      {testimonial.name}
+                    </p>
+                  </motion.div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-orange-500 dark:bg-orange-700 hover:bg-orange-600 dark:hover:bg-orange-800" />
+            <CarouselNext className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-orange-500 dark:bg-orange-700 hover:bg-orange-600 dark:hover:bg-orange-800" />
+          </Carousel>
         </div>
       </section>
 
-      <footer className="mt-16 w-full max-w-4xl text-center text-gray-200">
+      <footer className=" w-full  bg-gradient-to-r dark:from-gray-800 dark:via-gray-900 dark:to-black text-center text-gray-600 dark:text-gray-400 py-[3em]">
         <p>&copy; 2024 All rights reserved.</p>
         <div className="mt-4">
-          <Link to="#" className="text-blue-600">
+          <Link to="#" className="text-blue-600 dark:text-blue-400">
             Privacy Policy
           </Link>
           {" | "}
-          <Link to="#" className="text-blue-600">
+          <Link to="#" className="text-blue-600 dark:text-blue-400">
             Terms of Service
           </Link>
         </div>
