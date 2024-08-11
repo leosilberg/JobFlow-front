@@ -17,7 +17,6 @@ import {
   SelectItem,
 } from "@/components/ui/select"; // Adjust the path as needed
 import { Button } from "@/components/ui/button";
-
 const Job = {
   title: "Software Engineer",
   company: "XYZ Corp",

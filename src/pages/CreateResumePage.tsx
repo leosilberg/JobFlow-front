@@ -39,6 +39,49 @@ import { motion } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
+import {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  AlignmentType,
+  BorderStyle,
+} from "docx";
+import { saveAs } from "file-saver";
+
+interface EducationItem {
+  degree: string;
+  institution: string;
+  graduationYear: string;
+  description: string;
+}
+
+interface ExperienceItem {
+  jobTitle: string;
+  company: string;
+  startYear: string;
+  endYear: string;
+  description: string;
+}
+
+interface MilitaryItem {
+  role: string;
+  startYear: string;
+  endYear: string;
+}
+
+interface UserData {
+  name: string;
+  phone: string;
+  email: string;
+  profile: string;
+  education: EducationItem[];
+  experience: ExperienceItem[];
+  military: MilitaryItem[];
+  skills: string;
+  languages: string;
+}
+
 const formSchema = z.object({
   name: z
     .string()
@@ -91,8 +134,18 @@ const formSchema = z.object({
           .string()
           .min(2, "Company must be at least 2 characters")
           .max(100, "Company can't be longer than 100 characters"),
-        startDate: z.date(),
-        endDate: z.date(),
+        startDate: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
+        endDate: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
         description: z
           .string()
           .min(10, "Description must be at least 10 characters")
@@ -111,8 +164,18 @@ const formSchema = z.object({
           .string()
           .min(2, "Role must be at least 2 characters")
           .max(50, "Role can't be longer than 50 characters"),
-        startDate: z.date(),
-        endDate: z.date(),
+        startDate: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
+        endDate: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
         description: z
           .string()
           .min(10, "Description must be at least 10 characters")
@@ -193,6 +256,180 @@ export default function CreateResumePage({}: CreateResumePageProps) {
       return false;
     }
     return true;
+  };
+
+  const generateAndDownloadDocument = (userData: UserData): void => {
+    try {
+      // Helper function to create a list of items
+      const createList = (items: any[], itemFields: string[]): Paragraph[] => {
+        return items.map(
+          (item, index) =>
+            new Paragraph({
+              children: itemFields.map(
+                (field, i) =>
+                  new TextRun(
+                    `${item[field as keyof typeof item]}${
+                      i < itemFields.length - 1 ? "\n" : ""
+                    }`
+                  )
+              ),
+              spacing: { after: 100 },
+            })
+        );
+      };
+
+      const doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({ text: userData.name, bold: true, size: 32 }),
+                  new TextRun({ text: `\n${userData.phone}`, size: 24 }),
+                  new TextRun({ text: `\n${userData.email}`, size: 24 }), // Added email
+                ],
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "PROFILE",
+
+                spacing: { after: 100 },
+              }),
+              new Paragraph({
+                text: userData.profile,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "EDUCATION",
+
+                spacing: { after: 100 },
+              }),
+              ...createList(userData.education, [
+                "degree",
+                "institution",
+                "graduationYear",
+                "description",
+              ]),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "WORK EXPERIENCE",
+
+                spacing: { after: 100 },
+              }),
+              ...createList(userData.experience, [
+                "jobTitle",
+                "company",
+                "startYear",
+                "endYear",
+                "description",
+              ]),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "MILITARY SERVICE",
+
+                spacing: { after: 100 },
+              }),
+              ...createList(userData.military, [
+                "role",
+                "startYear",
+                "endYear",
+              ]),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "SKILLS",
+
+                spacing: { after: 100 },
+              }),
+              new Paragraph({
+                text: userData.skills,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                text: "LANGUAGES",
+
+                spacing: { after: 100 },
+              }),
+              new Paragraph({
+                text: userData.languages,
+                spacing: { after: 200 },
+              }),
+              new Paragraph({
+                border: {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 6,
+                    space: 1,
+                    color: "000000",
+                  },
+                },
+                spacing: { after: 200 },
+              }),
+            ],
+          },
+        ],
+      });
+
+      Packer.toBlob(doc).then((blob) => {
+        saveAs(blob, "cv.docx");
+        console.log("Document generated and downloaded successfully!");
+      });
+    } catch (error) {
+      console.error("Error generating document:", error);
+    }
   };
 
   const onSubmit = (data: CreateResumePageProps) => {
