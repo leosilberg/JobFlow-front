@@ -67,7 +67,12 @@ const formSchema = z.object({
           .string()
           .min(2, "Institution must be at least 2 characters")
           .max(100, "Institution can't be longer than 100 characters"),
-        graduationYear: z.date(),
+        graduationYear: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
         description: z
           .string()
           .min(10, "Description must be at least 10 characters")
@@ -191,7 +196,25 @@ export default function CreateResumePage({}: CreateResumePageProps) {
   };
 
   const onSubmit = (data: CreateResumePageProps) => {
-    console.log("Form Submitted:", data);
+    const parsedData = {
+      ...data,
+      education: data.education?.map((edu) => ({
+        ...edu,
+        graduationYear: new Date(edu.graduationYear),
+      })),
+      experience: data.experience?.map((exp) => ({
+        ...exp,
+        startDate: new Date(exp.startDate),
+        endDate: new Date(exp.endDate),
+      })),
+      military: data.military?.map((mil) => ({
+        ...mil,
+        startDate: new Date(mil.startDate),
+        endDate: new Date(mil.endDate),
+      })),
+    };
+
+    console.log("Form Submitted:", parsedData);
     toast({
       title: "You submitted the CV.",
       variant: "default",
@@ -322,7 +345,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       });
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <span className="relative flex items-center">
                     <FaPlus className="mr-2" /> Add Education
@@ -391,7 +414,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       });
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Experience
                 </Button>
@@ -466,7 +489,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       });
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Military Experience
                 </Button>
@@ -538,7 +561,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       form.setValue("skills", [...skills, ""]);
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Skill
                 </Button>
@@ -588,7 +611,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       form.setValue("languages", [...languages, ""]);
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Language
                 </Button>
