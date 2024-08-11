@@ -40,6 +40,9 @@ export default function Navbar() {
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-opacity-30 px-4 backdrop-blur-md backdrop-filter md:px-16">
       <nav className="flex w-full items-center gap-4 text-sm font-medium">
         <TextNavLink to="/">Home</TextNavLink>
+        <TextNavLink to="/dashboard">Dashboard</TextNavLink>
+        <TextNavLink to="/dashboard/create">Create job</TextNavLink>
+        <TextNavLink to="/create-resume">Create resume</TextNavLink>
         {user && <TextNavLink to="/dashboard">Job Tracker</TextNavLink>}
         <div className="ms-auto flex items-center gap-4">
           {user ? (
