@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage.tsx";
 import SignupPage from "./pages/SignupPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import { Test } from "./pages/Test.tsx";
+import { JobRecommendationsPage } from "./pages/jobRecommendationsPage.tsx";
 
 interface AppProps {}
 
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
       {
         path: "test",
         element: <Test />,
+      },
+      {
+        path: "job-recommendations",
+        element: <JobRecommendationsPage />,
       },
       {
         path: "auth",
