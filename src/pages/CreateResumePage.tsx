@@ -229,7 +229,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="bg-gradient-to-r from-orange-100 via-pink-200 to-red-300 dark:from-gray-800 dark:via-gray-900 dark:to-black text-gray-700 dark:text-white shadow-xl rounded-2xl p-6 md:p-10 max-w-full md:max-w-5xl mx-auto">
+      <Card className="bg-gradient-to-r lg:my-[3em] from-orange-100 via-pink-200 to-red-300 dark:from-gray-800 dark:via-gray-900 dark:to-black text-gray-700 dark:text-white shadow-xl rounded-2xl p-6 md:p-10 max-w-full md:max-w-5xl mx-auto">
         <CardHeader className="border-b-[0.2em] border-red-300 dark:border-gray-700 pb-4 md:pb-6 mb-6 md:mb-10">
           <CardTitle className="text-2xl md:text-4xl font-extrabold text-gray-700 dark:text-white">
             Create Your CV
