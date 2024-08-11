@@ -452,8 +452,6 @@ export default function CreateResumePage({}: CreateResumePageProps) {
     };
 
     console.log("Form Submitted:", parsedData);
-    generateAndDownloadDocument(parsedData);
-
     toast({
       title: "You submitted the CV.",
       variant: "default",
@@ -584,7 +582,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       });
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <span className="relative flex items-center">
                     <FaPlus className="mr-2" /> Add Education
@@ -653,7 +651,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       });
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Experience
                 </Button>
@@ -728,7 +726,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       });
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Military Experience
                 </Button>
@@ -800,7 +798,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       form.setValue("skills", [...skills, ""]);
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Skill
                 </Button>
@@ -850,7 +848,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       form.setValue("languages", [...languages, ""]);
                     }
                   }}
-                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
+                  className="relative inline-flex items-center justify-center px-6 py-3 overflow-hidden bg-transparent font-bold tracking-wide border border-orange-400 dark:border-indigo-300 text-gray-700 dark:text-gray-300 rounded-md shadow-2xl group hover:text-gray-50 transition-all duration-500 ease-in-out mt-6 hover:duration-[0ms] hover:bg-gradient-to-r hover:from-orange-500 hover:to-pink-500 dark:hover:from-blue-600 dark:hover:to-indigo-700 hover:border-transparent"
                 >
                   <FaPlus className="mr-2" /> Add Language
                 </Button>
