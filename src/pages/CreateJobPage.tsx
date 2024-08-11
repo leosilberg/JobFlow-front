@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button.tsx";
 import { Calendar } from "@/components/ui/calendar.tsx";
-import { Checkbox } from "@/components/ui/checkbox.tsx";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +8,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,7 +19,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover.tsx";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group.tsx";
 import {
   Select,
   SelectContent,
@@ -30,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select.tsx";
 import { cn } from "@/lib/utils.ts";
+import { useAddJob } from "@/mutations/job.mutations.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -69,8 +67,9 @@ export default function CreateJobPage() {
     },
   });
 
+  const addJob = useAddJob();
   function onSubmit(values: JobValues) {
-    console.log("JobDetails: ", values);
+    addJob.mutate(values);
   }
 
   return (
