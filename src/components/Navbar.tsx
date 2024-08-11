@@ -43,6 +43,7 @@ export default function Navbar() {
         <TextNavLink to="/dashboard">Dashboard</TextNavLink>
         <TextNavLink to="/dashboard/create">Create job</TextNavLink>
         <TextNavLink to="/create-resume">Create resume</TextNavLink>
+        <TextNavLink to="/job-recommendations">Job recommendations</TextNavLink>
         {user && <TextNavLink to="/dashboard">Job Tracker</TextNavLink>}
         <div className="ms-auto flex items-center gap-4">
           {user ? (
