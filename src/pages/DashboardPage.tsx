@@ -115,10 +115,14 @@ export default function DashboardPage({}: DashboardPageProps) {
       }
       console.log(`DashboardPage: drop on job same status`);
       return queryClient.setQueryData(["jobs"], (old: IJob[]) => {
-        return arrayMove(old, activeIndex, overIndex).map((job, index) => ({
-          ...job,
-          order: index,
-        }));
+        const newarr = arrayMove(old, activeIndex, overIndex).map(
+          (job, index) => ({
+            ...job,
+            order: index,
+          })
+        );
+        update.mutate(newarr);
+        return newarr;
       });
     }
 
@@ -126,12 +130,37 @@ export default function DashboardPage({}: DashboardPageProps) {
 
     // Im dropping a Task over a column
     if (isActiveATask && isOverAColumn) {
-      console.log(`DashboardPage: drop over column`, overData.endOrder);
-      queryClient.setQueryData(["jobs"], (old: IJob[]) =>
-        old?.map((job) =>
-          job._id === activeId ? { ...job, status: overId } : job
-        )
-      );
+      console.log(`DashboardPage: drop over column`, overId);
+      queryClient.setQueryData(["jobs"], (old: IJob[]) => {
+        const indexNext = old.findIndex(
+          (job) => job.status > (overId as number)
+        );
+        console.log(`DashboardPage: next index`, indexNext);
+        const firstJobOfnext = old[indexNext];
+        console.log(
+          `DashboardPage: `,
+          firstJobOfnext,
+          firstJobOfnext?.order || old.length - 1
+        );
+
+        const oldjobIndex = old?.findIndex((t) => t._id === activeId);
+        console.log(oldjobIndex);
+
+        old[oldjobIndex].status = overId as number;
+        const newarr = arrayMove(
+          old,
+          oldjobIndex,
+          firstJobOfnext?.order && firstJobOfnext.order > oldjobIndex
+            ? firstJobOfnext.order - 1
+            : firstJobOfnext.order || old.length - 1
+        ).map((job, index) => ({
+          ...job,
+          order: index,
+        }));
+        update.mutate(newarr);
+        return newarr;
+        return old;
+      });
     }
   }
 
