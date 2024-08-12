@@ -110,7 +110,13 @@ const formSchema = z.object({
           .string()
           .min(2, "Institution must be at least 2 characters")
           .max(100, "Institution can't be longer than 100 characters"),
-        graduationYear: z.preprocess(
+        startDate: z.preprocess(
+          (arg) => {
+            return typeof arg === "string" ? new Date(arg) : arg;
+          },
+          z.date().refine((date) => !isNaN(date.getTime()), "Invalid date")
+        ),
+        endDate: z.preprocess(
           (arg) => {
             return typeof arg === "string" ? new Date(arg) : arg;
           },
@@ -437,7 +443,8 @@ export default function CreateResumePage({}: CreateResumePageProps) {
       ...data,
       education: data.education?.map((edu) => ({
         ...edu,
-        graduationYear: new Date(edu.graduationYear),
+        startDate: new Date(edu.startDate),
+        endDate: new Date(edu.endDate),
       })),
       experience: data.experience?.map((exp) => ({
         ...exp,
@@ -450,7 +457,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
         endDate: new Date(mil.endDate),
       })),
     };
-
+    generateAndDownloadDocument(parsedData);
     console.log("Form Submitted:", parsedData);
     toast({
       title: "You submitted the CV.",
@@ -466,7 +473,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="bg-gradient-to-r lg:my-[3em] from-orange-100 via-pink-200 to-red-300 dark:from-gray-800 dark:via-gray-900 dark:to-black text-gray-700 dark:text-white shadow-xl rounded-2xl p-6 md:p-10 max-w-full md:max-w-5xl mx-auto">
+      <Card className="bg-gradient-to-r lg:my-[3em] my-2 mx-2  from-orange-100 via-pink-200 to-red-300 dark:from-gray-800 dark:via-gray-900 dark:to-black text-gray-700 dark:text-white shadow-xl rounded-2xl p-6 md:p-10 max-w-full md:max-w-5xl lg:mx-auto">
         <CardHeader className="border-b-[0.2em] border-red-300 dark:border-gray-700 pb-4 md:pb-6 mb-6 md:mb-10">
           <CardTitle className="text-2xl md:text-4xl font-extrabold text-gray-700 dark:text-white">
             Create Your CV
@@ -577,7 +584,8 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                       educationFieldArray.append({
                         degree: "",
                         institution: "",
-                        graduationYear: new Date(),
+                        startDate: new Date(),
+                        endDate: new Date(),
                         description: "",
                       });
                     }
@@ -610,14 +618,20 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                           placeholder="Institution"
                           className="w-full p-3 border border-transparent rounded-xl bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-white focus:ring-4 focus:ring-yellow-300"
                         />
-                        <Input
-                          type="date"
-                          {...form.register(
-                            `education.${index}.graduationYear`
-                          )}
-                          placeholder="Graduation Year"
-                          className="w-full p-3 border border-transparent rounded-xl bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 focus:ring-4 focus:ring-yellow-300"
-                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Input
+                            type="date"
+                            {...form.register(`education.${index}.startDate`)}
+                            placeholder="Start Year"
+                            className="w-full p-3 border border-transparent rounded-xl bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 focus:ring-4 focus:ring-yellow-300"
+                          />
+                          <Input
+                            type="date"
+                            {...form.register(`education.${index}.endDate`)}
+                            placeholder="Graduation Year"
+                            className="w-full p-3 border border-transparent rounded-xl bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 focus:ring-4 focus:ring-yellow-300"
+                          />
+                        </div>
                         <Textarea
                           {...form.register(`education.${index}.description`)}
                           placeholder="Description"

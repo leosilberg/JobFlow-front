@@ -51,7 +51,7 @@ export function JobSummary({ job, isOverlay }: JobSummaryProps) {
       })}
       {...attributes}
       {...listeners}
-      onClick={() => navigate(`/job/${job._id}`)}
+      onClick={() => navigate(`./job/${job._id}`)}
     >
       <CardHeader className="px-3 py-3 space-between flex flex-row border-b-2  relative"></CardHeader>
       <CardContent className="px-3 pt-3 pb-6 text-left  whitespace-pre-wrap">

@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import { FaLinkedin } from "react-icons/fa";
 
 const dummyJobs = {
   jobs: [
@@ -113,8 +114,10 @@ export const JobRecommendationsPage = () => {
   return (
     <>
       <div className="flex justify-center mt-8 mb-4">
-        <h1 className="text-3xl font-semibold text-gray-800">
-          <span className="block text-indigo-600">Job Offers</span>
+        <h1 className="text-3xl font-semibold text-gray-700">
+          <span className="block text-orange-500 dark:text-indigo-600">
+            Job Offers
+          </span>
           Based on Your CV
         </h1>
       </div>
@@ -125,8 +128,9 @@ export const JobRecommendationsPage = () => {
           animate="visible"
           variants={cardVariants}
           transition={{ duration: 0.5, delay: index * 0.2 }}
+          className="lg:px-[9.8em] px-2"
         >
-          <Card className="m-4">
+          <Card className="my-4 border-2 border-orange-200 dark:border-none bg-gradient-to-tr from-orange-50 via-pink-50 to-red-50 dark:from-gray-800 dark:via-gray-900 dark:to-black">
             <CardHeader title={job.title} />
             <CardContent>
               <CardTitle className="mb-4">{job.title}</CardTitle>
@@ -134,10 +138,11 @@ export const JobRecommendationsPage = () => {
             </CardContent>
             <CardFooter>
               <Dialog>
-                <DialogTrigger className="btn btn-primary">
-                  Show result on LinkedIn
+                <DialogTrigger className="btn flex items-center gap-2 btn-primary">
+                  Show result on LinkedIn{" "}
+                  <FaLinkedin className="text-blue-700 text-[1.1em]" />
                 </DialogTrigger>
-                <DialogContent className="p-6 max-w-2xl mx-auto max-h-[80vh] overflow-y-auto">
+                <DialogContent className="p-6 lg:max-w-2xl mx-auto max-h-[80vh] rounded-md overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">
                       Here are some jobs I've found
