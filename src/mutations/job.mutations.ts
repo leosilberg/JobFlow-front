@@ -38,10 +38,13 @@ export function useEditJob() {
           job._id === jobId ? { ...job, ...changes } : job
         )
       );
+      queryClient.setQueryData(["job", { jobId }], (old: IJob) => {
+        return { ...old, ...changes };
+      });
       return { prevJobs };
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: ["jobs", "job"] });
     },
   });
 }
