@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import Editable from "@/components/Editable.tsx";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,23 +7,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { format } from "date-fns";
-import { MapPin, DollarSign, Link, Trash } from "lucide-react";
+import { Input } from "@/components/ui/input.tsx";
 import {
   Select,
-  SelectTrigger,
   SelectContent,
   SelectItem,
+  SelectTrigger,
 } from "@/components/ui/select"; // Adjust the path as needed
-import { Button } from "@/components/ui/button";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { useGetJob } from "@/queries/job.query";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useGetJob } from "@/queries/job.query";
+import { format } from "date-fns";
+import { DollarSign, Link, MapPin, Trash } from "lucide-react";
+import { useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEditJob, useRemoveJob } from "../mutations/job.mutations.ts";
 import { columns } from "./DashboardPage";
-import { useRemoveJob, useEditJob } from "../mutations/job.mutations.ts";
-import { CiEdit } from "react-icons/ci";
 
 const loggenInUser = {
   resume_link: "",
@@ -43,6 +43,12 @@ export const JobDetails = () => {
   const [fileContent, setFileContent] = useState(null);
   const status = columns.find((column) => column.id)?.title;
   const location = useLocation();
+
+  const titleRef = useRef(null);
+  const locationRef = useRef(null);
+  const companyRef = useRef(null);
+  const salaryRef = useRef(null);
+  const descriptionRef = useRef(null);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -90,7 +96,20 @@ export const JobDetails = () => {
           <DialogHeader className="flex items-center justify-between">
             <div className="flex items-center flex-1">
               <DialogTitle className="text-xl font-bold flex gap-3 items-center tracking-wide text-gray-800 dark:text-gray-100">
-                <strong>{job?.title}</strong>{" "}
+                <Editable
+                  text={job?.title}
+                  inputRef={titleRef}
+                  className="font-bold"
+                  onChange={(changes: any) => {
+                    editJob.mutate({ jobId: job!._id, changes });
+                  }}
+                >
+                  <Input
+                    ref={titleRef}
+                    defaultValue={job?.title}
+                    name="title"
+                  />
+                </Editable>
                 <button className="text-red-500 dark:text-red-400">
                   <Trash
                     size={16}
@@ -101,29 +120,28 @@ export const JobDetails = () => {
                     }}
                   />
                 </button>
-                <button className="text-red-500 dark:text-green-400">
-                  <CiEdit
-                    className="hover:animate-pulse"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleEditJob();
-                    }}
-                  />
-                </button>
               </DialogTitle>
             </div>
             <div className="flex items-center space-x-2">
-              <Select>
+              <Select
+                onValueChange={(value) =>
+                  editJob.mutate({
+                    jobId: job!._id,
+                    changes: { status: parseInt(value) },
+                  })
+                }
+                value={job?.status.toString()}
+              >
                 <SelectTrigger className="border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
                   <span className="sr-only">Select an action</span>{" "}
                   <p>Actions</p>
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-                  <SelectItem value="wishlist">Wishlist</SelectItem>
-                  <SelectItem value="applied">Applied</SelectItem>
-                  <SelectItem value="interview">Interview</SelectItem>
-                  <SelectItem value="offer">Offer</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="1">Wishlist</SelectItem>
+                  <SelectItem value="2">Applied</SelectItem>
+                  <SelectItem value="3">Interview</SelectItem>
+                  <SelectItem value="4">Offer</SelectItem>
+                  <SelectItem value="5">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -136,14 +154,38 @@ export const JobDetails = () => {
                     size={16}
                     className="text-green-600 dark:text-green-400"
                   />
-                  <p className="ml-1">{job?.salary.toLocaleString()}</p>
+                  <Editable
+                    text={job?.salary}
+                    inputRef={salaryRef}
+                    onChange={(changes: any) => {
+                      editJob.mutate({ jobId: job!._id, changes });
+                    }}
+                  >
+                    <Input
+                      ref={salaryRef}
+                      defaultValue={job?.salary}
+                      name="salary"
+                    />
+                  </Editable>
                 </div>
                 <div className="text-gray-600 dark:text-gray-400 flex items-center">
                   <MapPin
                     size={16}
                     className="text-orange-400 dark:text-orange-300"
                   />
-                  <p className="ml-1">{job?.location}</p>
+                  <Editable
+                    text={job?.location}
+                    inputRef={locationRef}
+                    onChange={(changes: any) => {
+                      editJob.mutate({ jobId: job!._id, changes });
+                    }}
+                  >
+                    <Input
+                      ref={locationRef}
+                      defaultValue={job?.location}
+                      name="location"
+                    />
+                  </Editable>
                 </div>
                 <div className="text-gray-600 dark:text-gray-400 flex items-center">
                   <Link
@@ -161,10 +203,36 @@ export const JobDetails = () => {
                 </div>
               </div>
               <div className="py-2">
-                <strong>Company:</strong> {job?.company}
+                <strong>Company:</strong>{" "}
+                <Editable
+                  text={job?.company}
+                  inputRef={companyRef}
+                  onChange={(changes: any) => {
+                    editJob.mutate({ jobId: job!._id, changes });
+                  }}
+                >
+                  <Input
+                    ref={companyRef}
+                    defaultValue={job?.company}
+                    name="company"
+                  />
+                </Editable>
               </div>
               <div className="py-2">
-                <strong>Description:</strong> {job?.description}
+                <strong>Description:</strong>{" "}
+                <Editable
+                  text={job?.description}
+                  inputRef={descriptionRef}
+                  onChange={(changes: any) => {
+                    editJob.mutate({ jobId: job!._id, changes });
+                  }}
+                >
+                  <Input
+                    ref={descriptionRef}
+                    defaultValue={job?.description}
+                    name="description"
+                  />
+                </Editable>
               </div>
               <div className="py-2">
                 <strong>Status:</strong> {status}

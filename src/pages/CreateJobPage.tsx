@@ -6,7 +6,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
-import { ScrollArea } from "../components/ui/scroll-area";
 import {
   Form,
   FormControl,
@@ -34,8 +33,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import { MdWorkOutline } from "react-icons/md";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { ScrollArea } from "../components/ui/scroll-area";
 
 import { z } from "zod";
 
@@ -49,7 +49,7 @@ const formSchema = z.object({
     .min(2, "Description must be at least 2 characters long"),
   salary: z.number().min(0, "Salary must be a positive number").optional(),
   link: z.string().url("Must be a valid URL"),
-  status: z.number([number]),
+  status: z.string(),
   interview_date: z.date().optional(),
   contract_link: z.string().url().optional(),
 });
@@ -57,12 +57,7 @@ const formSchema = z.object({
 export default function CreateJobPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const initialStatus = searchParams.get("status")?.toLowerCase() as
-    | "wishlist"
-    | "applied"
-    | "interview"
-    | "offer"
-    | "rejected";
+  const initialStatus = searchParams.get("status") || "1";
   const form = useForm<JobValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
