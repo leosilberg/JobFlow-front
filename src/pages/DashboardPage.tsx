@@ -45,13 +45,7 @@ export default function DashboardPage({}: DashboardPageProps) {
   const columnsId = useMemo(() => columns.map((col) => col.title), [columns]);
   const { data: jobs = [] } = useGetFilteredJobs("");
   useEffect(() => {
-    console.log(
-      `DashboardPage: `,
-      jobs.map((job) => ({
-        order: job.order,
-        status: job.status,
-      }))
-    );
+    console.log(`DashboardPage: `, jobs);
   }, [jobs]);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
 
@@ -121,10 +115,14 @@ export default function DashboardPage({}: DashboardPageProps) {
       }
       console.log(`DashboardPage: drop on job same status`);
       return queryClient.setQueryData(["jobs"], (old: IJob[]) => {
-        return arrayMove(old, activeIndex, overIndex).map((job, index) => ({
-          ...job,
-          order: index,
-        }));
+        const newarr = arrayMove(old, activeIndex, overIndex).map(
+          (job, index) => ({
+            ...job,
+            order: index,
+          })
+        );
+        update.mutate(newarr);
+        return newarr;
       });
     }
 
@@ -132,12 +130,37 @@ export default function DashboardPage({}: DashboardPageProps) {
 
     // Im dropping a Task over a column
     if (isActiveATask && isOverAColumn) {
-      console.log(`DashboardPage: drop over column`, overData.endOrder);
-      queryClient.setQueryData(["jobs"], (old: IJob[]) =>
-        old?.map((job) =>
-          job._id === activeId ? { ...job, status: overId } : job
-        )
-      );
+      console.log(`DashboardPage: drop over column`, overId);
+      queryClient.setQueryData(["jobs"], (old: IJob[]) => {
+        const indexNext = old.findIndex(
+          (job) => job.status > (overId as number)
+        );
+        console.log(`DashboardPage: next index`, indexNext);
+        const firstJobOfnext = old[indexNext];
+        console.log(
+          `DashboardPage: `,
+          firstJobOfnext,
+          firstJobOfnext?.order || old.length - 1
+        );
+
+        const oldjobIndex = old?.findIndex((t) => t._id === activeId);
+        console.log(oldjobIndex);
+
+        old[oldjobIndex].status = overId as number;
+        const newarr = arrayMove(
+          old,
+          oldjobIndex,
+          firstJobOfnext?.order && firstJobOfnext.order > oldjobIndex
+            ? firstJobOfnext.order - 1
+            : firstJobOfnext.order || old.length - 1
+        ).map((job, index) => ({
+          ...job,
+          order: index,
+        }));
+        update.mutate(newarr);
+        return newarr;
+        return old;
+      });
     }
   }
 
@@ -153,7 +176,7 @@ export default function DashboardPage({}: DashboardPageProps) {
             <StatusColumn
               key={col.title}
               column={col}
-              jobs={jobs?.filter((job) => job.status === col.id)}
+              jobs={jobs?.filter((job) => job.status == col.id)}
               className="bg-gradient-to-r from-orange-50 via-pink-100 to-red-100 dark:from-gray-700 dark:via-gray-800 dark:to-black p-5 rounded-2xl text-gray-800 dark:text-white shadow-lg hover:shadow-2xl transition-shadow duration-200 ease-in-out"
             />
           ))}

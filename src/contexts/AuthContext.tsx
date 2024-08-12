@@ -18,6 +18,7 @@ interface AuthContextType {
   login: (cred: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
   signup: (cred: SignupCredentials) => Promise<void>;
+  uploadResume: (url: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -35,6 +36,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserState>(undefined);
   const [token, setToken] = useLocalStorage(TOKEN_KEY);
   const navigate = useNavigate();
+
+  async function uploadResume(url: string) {
+    console.log(url);
+    try {
+      const { data } = await api.patch("/user", { resume_link: url });
+      return data;
+    } catch (error) {
+      console.log(`AuthContext: `, error);
+      if (isAxiosError(error))
+        throw error.response?.data ? error.response.data : error.message;
+      else throw (error as Error).message;
+    }
+  }
 
   async function login(cred: LoginCredentials) {
     try {
@@ -71,8 +85,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(user);
       } catch (error) {
         console.log(`AuthContext: `, error);
-        if (isAxiosError(error) && error.response?.status === 401)
-          setToken(null);
       }
     }
 
@@ -91,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, signup }}>
+    <AuthContext.Provider value={{ user, login, logout, signup, uploadResume }}>
       {children}
     </AuthContext.Provider>
   );
