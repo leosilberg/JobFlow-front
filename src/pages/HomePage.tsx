@@ -234,11 +234,17 @@ const HomePage: React.FC = () => {
                   )}
                 </div>
               </div>
-              {activeIndex === index && (
-                <div className="pb-8 text-base text-gray-700 dark:text-gray-300">
+              <div
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                  activeIndex === index
+                    ? "max-h-40 opacity-100"
+                    : "max-h-0 opacity-0"
+                }`}
+              >
+                <div className="py-4 text-base text-gray-700 dark:text-gray-300">
                   {faq.answer}
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
@@ -283,11 +289,11 @@ const HomePage: React.FC = () => {
           <Carousel className="relative">
             <CarouselContent className="flex gap-8 mx-[3em]">
               {testimonials.map((testimonial, index) => (
-                <CarouselItem key={index} className=" max-w-[20em]">
+                <CarouselItem key={index} className=" max-w-[20em] ">
                   <motion.div
                     whileHover={{ scale: 1.05, translateY: -5 }}
                     whileTap={{ scale: 0.95 }}
-                    className="relative p-8 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg transform transition-transform duration-200 ease-out flex flex-col items-center hover:shadow-xl border border-gray-200 dark:border-gray-700"
+                    className="relative p-8 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg h-full transform transition-transform duration-200 ease-out flex flex-col items-center hover:shadow-xl border border-gray-200 dark:border-gray-700"
                   >
                     <div className="absolute inset-0 w-full h-full bg-gray-200 dark:bg-gray-900 opacity-0 rounded-lg hover:opacity-10 transition-opacity duration-200"></div>
                     <p className="italic text-gray-600 dark:text-gray-300 text-lg">

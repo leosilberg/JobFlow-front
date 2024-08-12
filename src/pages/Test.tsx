@@ -80,7 +80,7 @@ export const Test = () => {
               <div className="flex justify-between items-center">
                 <div className="text-gray-600 flex items-center">
                   <DollarSign size={16} />
-                  <p className="ml-1">${Job.salary.toLocaleString()}</p>
+                  <p className="ml-1">{Job.salary.toLocaleString()}</p>
                 </div>
                 <div className="text-gray-600 flex items-center">
                   <MapPin size={16} />

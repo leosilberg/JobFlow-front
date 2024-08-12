@@ -7,7 +7,7 @@ function ProfilePage() {
   const { user } = useAuthContext();
 
   return (
-    <div className="max-w-3xl mx-auto my-8 p-8 bg-gradient-to-br from-pink-100 to-orange-100 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700">
+    <div className="max-w-3xl mx-auto my-8 p-8 bg-gradient-to-br from-pink-100 to-orange-100 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-xl border border-gray-200 dark:border-transparent">
       <h1 className="text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8 flex items-center gap-4">
         <MdPerson className="text-pink-500 dark:text-indigo-400" />
         {user.firstName} {user.lastName}'s Profile
