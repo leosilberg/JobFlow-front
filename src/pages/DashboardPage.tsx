@@ -45,13 +45,7 @@ export default function DashboardPage({}: DashboardPageProps) {
   const columnsId = useMemo(() => columns.map((col) => col.title), [columns]);
   const { data: jobs = [] } = useGetFilteredJobs("");
   useEffect(() => {
-    console.log(
-      `DashboardPage: `,
-      jobs.map((job) => ({
-        order: job.order,
-        status: job.status,
-      }))
-    );
+    console.log(`DashboardPage: `, jobs);
   }, [jobs]);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
 
@@ -182,7 +176,7 @@ export default function DashboardPage({}: DashboardPageProps) {
             <StatusColumn
               key={col.title}
               column={col}
-              jobs={jobs?.filter((job) => job.status === col.id)}
+              jobs={jobs?.filter((job) => job.status == col.id)}
               className="bg-gradient-to-r from-orange-50 via-pink-100 to-red-100 dark:from-gray-700 dark:via-gray-800 dark:to-black p-5 rounded-2xl text-gray-800 dark:text-white shadow-lg hover:shadow-2xl transition-shadow duration-200 ease-in-out"
             />
           ))}

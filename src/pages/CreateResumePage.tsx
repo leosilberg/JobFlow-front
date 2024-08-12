@@ -48,6 +48,8 @@ import {
   BorderStyle,
 } from "docx";
 import { saveAs } from "file-saver";
+import axios from "axios";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 interface EducationItem {
   degree: string;
@@ -208,6 +210,8 @@ export default function CreateResumePage({}: CreateResumePageProps) {
 
   const [isPending, setIsPending] = useState(false);
 
+  const { uploadResume } = useAuthContext();
+
   const form = useForm<CreateResumePageProps>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -258,7 +262,9 @@ export default function CreateResumePage({}: CreateResumePageProps) {
     return true;
   };
 
-  const generateAndDownloadDocument = (userData: UserData): void => {
+  const generateAndDownloadDocument = async (
+    userData: UserData
+  ): Promise<void> => {
     try {
       // Helper function to create a list of items
       const createList = (items: any[], itemFields: string[]): Paragraph[] => {
@@ -294,7 +300,6 @@ export default function CreateResumePage({}: CreateResumePageProps) {
               }),
               new Paragraph({
                 text: "PROFILE",
-
                 spacing: { after: 100 },
               }),
               new Paragraph({
@@ -314,7 +319,6 @@ export default function CreateResumePage({}: CreateResumePageProps) {
               }),
               new Paragraph({
                 text: "EDUCATION",
-
                 spacing: { after: 100 },
               }),
               ...createList(userData.education, [
@@ -336,7 +340,6 @@ export default function CreateResumePage({}: CreateResumePageProps) {
               }),
               new Paragraph({
                 text: "WORK EXPERIENCE",
-
                 spacing: { after: 100 },
               }),
               ...createList(userData.experience, [
@@ -359,7 +362,6 @@ export default function CreateResumePage({}: CreateResumePageProps) {
               }),
               new Paragraph({
                 text: "MILITARY SERVICE",
-
                 spacing: { after: 100 },
               }),
               ...createList(userData.military, [
@@ -380,7 +382,6 @@ export default function CreateResumePage({}: CreateResumePageProps) {
               }),
               new Paragraph({
                 text: "SKILLS",
-
                 spacing: { after: 100 },
               }),
               new Paragraph({
@@ -400,7 +401,6 @@ export default function CreateResumePage({}: CreateResumePageProps) {
               }),
               new Paragraph({
                 text: "LANGUAGES",
-
                 spacing: { after: 100 },
               }),
               new Paragraph({
@@ -423,10 +423,33 @@ export default function CreateResumePage({}: CreateResumePageProps) {
         ],
       });
 
-      Packer.toBlob(doc).then((blob) => {
-        saveAs(blob, "cv.docx");
-        console.log("Document generated and downloaded successfully!");
-      });
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, "cv.docx");
+
+      // Upload to Cloudinary
+      const formData = new FormData();
+      formData.append("file", blob, "cv.docx");
+      formData.append("upload_preset", "ml_default"); // Replace with your Cloudinary upload preset
+
+      try {
+        const uploadResponse = await axios.post(
+          "https://api.cloudinary.com/v1_1/dipx5fuza/upload",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        // Extract URL from response
+        const fileUrl = uploadResponse.data.secure_url;
+        uploadResume(fileUrl);
+
+        // Optional: Use the URL as needed, e.g., display it, save it to the database, etc.
+      } catch (uploadError) {
+        console.error("Error uploading file to Cloudinary:", uploadError);
+      }
     } catch (error) {
       console.error("Error generating document:", error);
     }
@@ -450,7 +473,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
         endDate: new Date(mil.endDate),
       })),
     };
-
+    generateAndDownloadDocument(parsedData);
     console.log("Form Submitted:", parsedData);
     toast({
       title: "You submitted the CV.",

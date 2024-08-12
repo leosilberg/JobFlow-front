@@ -20,35 +20,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
-
-const dummyJobs = {
-  jobs: [
-    {
-      title: "Soccer Player",
-      description:
-        "Responsible for playing soccer at a professional level, participating in matches, and maintaining peak physical condition.",
-    },
-    {
-      title: "Basketball Player",
-      description:
-        "Plays basketball professionally, focusing on teamwork, strategy, and physical fitness to compete in games.",
-    },
-    {
-      title: "Football Player",
-      description:
-        "Engages in professional football, executing plays, practicing regularly, and maintaining strong physical endurance.",
-    },
-  ],
-};
+import api from "@/lib/api";
 
 export const JobRecommendationsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [jobs, setJobs] = useState(dummyJobs.jobs);
+  const [jobs, setJobs] = useState([]);
+  const [jobsByLinkedIn, setJobsByLinkedIn] = useState([]);
   const [country, setCountry] = useState("");
   const [salary, setSalary] = useState("");
   const [remoteOption, setRemoteOption] = useState("");
 
   useEffect(() => {
+    const abortController = new AbortController();
     const fetchJobs = async () => {
       try {
         const params = {
@@ -57,17 +40,28 @@ export const JobRecommendationsPage = () => {
           dateSincePosted: "past week",
           jobType: "full time",
           remoteFilter: "remote",
-          salary: "100000",
+          salary: "1000",
           experienceLevel: "entry level",
           sortBy: "recent",
           limit: 10,
         };
 
-        const { data } = await axios.get("http://localhost:3000/api/linkedin", {
-          params,
-        });
+        const { data: var1 } = await axios.get(
+          "http://localhost:3000/api/linkedin",
+          {
+            params,
+            signal: abortController.signal,
+          }
+        );
 
-        setJobs(data.jobs);
+        setJobsByLinkedIn(var1.jobs);
+
+        const { data: var2 } = await api.get("openai/job-recomendation", {
+          signal: abortController.signal,
+        });
+        console.log(var2);
+
+        setJobs(var2);
       } catch (error) {
         console.error("Error fetching jobs:", error);
       } finally {
@@ -76,6 +70,7 @@ export const JobRecommendationsPage = () => {
     };
 
     fetchJobs();
+    () => abortController.abort();
   }, []);
 
   const handleFilterSubmit = async () => {
@@ -96,7 +91,7 @@ export const JobRecommendationsPage = () => {
         params,
       });
 
-      setJobs(data.jobs);
+      setJobsByLinkedIn(data.jobs);
     } catch (error) {
       console.error("Error fetching filtered jobs:", error);
     }
@@ -118,7 +113,7 @@ export const JobRecommendationsPage = () => {
           Based on Your CV
         </h1>
       </div>
-      {dummyJobs.jobs.map((job, index) => (
+      {jobs.map((job, index) => (
         <motion.div
           key={job.title}
           initial="hidden"
@@ -172,7 +167,7 @@ export const JobRecommendationsPage = () => {
                           Apply Filters
                         </Button>
                         <div className="space-y-4 mt-4">
-                          {jobs.map((job, index) => (
+                          {jobsByLinkedIn.map((job, index) => (
                             <a
                               key={index}
                               href={job.jobUrl}
