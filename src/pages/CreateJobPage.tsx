@@ -49,7 +49,7 @@ const formSchema = z.object({
     .min(2, "Description must be at least 2 characters long"),
   salary: z.number().min(0, "Salary must be a positive number").optional(),
   link: z.string().url("Must be a valid URL"),
-  status: z.enum(["wishlist", "applied", "interview", "offer", "rejected"]),
+  status: z.number([number]),
   interview_date: z.date().optional(),
   contract_link: z.string().url().optional(),
 });
@@ -241,13 +241,11 @@ export default function CreateJobPage() {
                               <SelectValue placeholder="Select a status" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="wishlist">Wishlist</SelectItem>
-                              <SelectItem value="applied">Applied</SelectItem>
-                              <SelectItem value="interview">
-                                Interview
-                              </SelectItem>
-                              <SelectItem value="offer">Offer</SelectItem>
-                              <SelectItem value="rejected">Rejected</SelectItem>
+                              <SelectItem value="1">Wishlist</SelectItem>
+                              <SelectItem value="2">Applied</SelectItem>
+                              <SelectItem value="3">Interview</SelectItem>
+                              <SelectItem value="4">Offer</SelectItem>
+                              <SelectItem value="5">Rejected</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>

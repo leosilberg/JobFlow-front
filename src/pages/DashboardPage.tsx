@@ -21,7 +21,7 @@ import { Link, Outlet } from "react-router-dom";
 
 type DashboardPageProps = {};
 
-const columns = [
+export const columns = [
   {
     id: 1,
     title: "Wishlist",
@@ -171,7 +171,7 @@ export default function DashboardPage({}: DashboardPageProps) {
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
-        <div className="flex gap-6 flex-wrap lg:items-start items-center lg:flex-row flex-col justify-center lg:py-10 p-6 bg-gradient-to-tr from-orange-100 via-pink-200 to-red-300 dark:bg-gradient-to-tr dark:from-gray-800 dark:via-gray-900 dark:to-black">
+        <div className="flex gap-6  flex-wrap lg:items-start items-center lg:flex-row flex-col justify-center lg:py-10 py-6 bg-gradient-to-tr from-orange-100 via-pink-200 to-red-300 dark:bg-gradient-to-tr dark:from-gray-800 dark:via-gray-900 dark:to-black">
           {columns.map((col) => (
             <StatusColumn
               key={col.title}

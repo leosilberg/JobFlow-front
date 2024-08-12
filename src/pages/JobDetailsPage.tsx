@@ -17,9 +17,12 @@ import {
   SelectItem,
 } from "@/components/ui/select"; // Adjust the path as needed
 import { Button } from "@/components/ui/button";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useGetJob } from "@/queries/job.query";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { columns } from "./DashboardPage";
+import { useRemoveJob, useEditJob } from "../mutations/job.mutations.ts";
+import { CiEdit } from "react-icons/ci";
 
 const loggenInUser = {
   resume_link: "",
@@ -35,7 +38,11 @@ export const JobDetails = () => {
   const { data: job } = useGetJob(params.jobId!);
   const navigate = useNavigate();
   const { user } = useAuthContext();
+  const removeJob = useRemoveJob();
+  const editJob = useEditJob();
   const [fileContent, setFileContent] = useState(null);
+  const status = columns.find((column) => column.id)?.title;
+  const location = useLocation();
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -55,12 +62,26 @@ export const JobDetails = () => {
       alert("Please upload a valid .docx file");
     }
   };
+  const handleRemoveJob = () => {
+    removeJob.mutate(job._id, {
+      onSuccess: () => {
+        navigate(location.state?.from || "..");
+      },
+    });
+  };
+  const handleEditJob = () => {
+    editJob.mutate(job._id, {
+      onSuccess: () => {
+        navigate(location.state?.from || "..");
+      },
+    });
+  };
 
   return (
     <>
       <Dialog open onOpenChange={(open) => !open && navigate("..")}>
         <DialogContent
-          className="rounded-lg shadow-lg p-6 max-w-md w-full h-[80vh] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 overflow-y-auto"
+          className="rounded-lg shadow-lg mx-auto h-[80vh] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 overflow-y-auto"
           style={{
             borderRadius: "20px",
             boxShadow: "0 10px 20px rgba(0, 0, 0, 0.1)",
@@ -71,7 +92,23 @@ export const JobDetails = () => {
               <DialogTitle className="text-xl font-bold flex gap-3 items-center tracking-wide text-gray-800 dark:text-gray-100">
                 <strong>{job?.title}</strong>{" "}
                 <button className="text-red-500 dark:text-red-400">
-                  <Trash size={16} className="hover:animate-ping" />
+                  <Trash
+                    size={16}
+                    className="hover:animate-pulse"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleRemoveJob();
+                    }}
+                  />
+                </button>
+                <button className="text-red-500 dark:text-green-400">
+                  <CiEdit
+                    className="hover:animate-pulse"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleEditJob();
+                    }}
+                  />
                 </button>
               </DialogTitle>
             </div>
@@ -92,8 +129,8 @@ export const JobDetails = () => {
             </div>
           </DialogHeader>
           <DialogDescription>
-            <div className="grid gap-2 px-4 text-gray-700 dark:text-gray-300">
-              <div className="flex justify-between items-center">
+            <div className="grid gap-2 lg:px-4 text-gray-700 dark:text-gray-300">
+              <div className="flex lg:justify-between flex-col lg:flex-row items-center">
                 <div className="text-gray-600 dark:text-gray-400 flex items-center">
                   <DollarSign
                     size={16}
@@ -130,7 +167,7 @@ export const JobDetails = () => {
                 <strong>Description:</strong> {job?.description}
               </div>
               <div className="py-2">
-                <strong>Status:</strong> {job?.status}
+                <strong>Status:</strong> {status}
               </div>
               <div className="py-2">
                 <strong>Interview Date:</strong>{" "}
@@ -157,10 +194,7 @@ export const JobDetails = () => {
             ) : (
               <div className="flex gap-2">
                 <Button className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out">
-                  Create CV
-                </Button>
-                <Button className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out">
-                  Upload CV
+                  <a href="/create-resume">Create CV</a>
                 </Button>
               </div>
             )}
