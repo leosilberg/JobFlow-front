@@ -9,8 +9,9 @@ import DashboardPage from "./pages/DashboardPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
 import SignupPage from "./pages/SignupPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
-import { Test } from "./pages/Test.tsx";
 import { JobRecommendationsPage } from "./pages/jobRecommendationsPage.tsx";
+import ProfilePage from "./pages/ProfilePage.tsx";
+import { JobDetails } from "./pages/JobDetailsPage.tsx";
 
 interface AppProps {}
 
@@ -28,16 +29,17 @@ const router = createBrowserRouter([
             path: "create",
             element: <CreateJobPage />,
           },
+          {
+            path: "job/:jobId",
+            element: <JobDetails />,
+          },
         ],
       },
       {
         path: "create-resume",
         element: <CreateResumePage />,
       },
-      {
-        path: "test",
-        element: <Test />,
-      },
+      { path: "profile", element: <ProfilePage /> },
       {
         path: "job-recommendations",
         element: <JobRecommendationsPage />,

@@ -55,7 +55,7 @@ export default function LoginPage() {
   }
   return (
     <div className="flex flex-grow items-center justify-center">
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-sm border-2 border-orange-100 dark:border-none bg-gradient-to-tr from-orange-50 via-pink-50 to-red-50 dark:from-gray-800 dark:via-gray-900 dark:to-blue-950">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
@@ -70,7 +70,7 @@ export default function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="dark:text-gray-300">Email</FormLabel>
                     <FormControl>
                       <Input placeholder="m@example.com" {...field} />
                     </FormControl>
@@ -83,7 +83,9 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="dark:text-gray-300">
+                      Password
+                    </FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
@@ -91,7 +93,10 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button className="w-full" type="submit">
+              <Button
+                className="w-full bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                type="submit"
+              >
                 Sign in
               </Button>
               {form.formState.errors.root && (
@@ -103,10 +108,13 @@ export default function LoginPage() {
           </Form>
         </CardContent>
         <CardFooter className="grid gap-4">
-          <div className="text-center text-sm">
+          <div className="text-center flex gap-2 text-sm">
             Don't have an account?{" "}
-            <Link to={"../signup"} className="underline">
-              Sign up
+            <Link
+              to={"../signup"}
+              className="underline text-orange-500 dark:text-blue-500"
+            >
+              <p className="animate-bounce">Sign up</p>
             </Link>
           </div>
         </CardFooter>

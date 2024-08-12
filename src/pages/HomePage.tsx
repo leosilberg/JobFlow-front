@@ -189,12 +189,12 @@ const HomePage: React.FC = () => {
                 <motion.div
                   key={index}
                   whileHover={{
-                    scale: 1.1,
-                    rotate: 3,
+                    scale: 1.02,
+                    rotate: 1,
                     transition: { duration: 0.15 },
                   }}
-                  whileTap={{ scale: 0.95, rotate: -3 }}
-                  className={`p-8 ${card.bgColor} rounded-3xl shadow-lg flex flex-col items-center transform transition-transform duration-150 ease-in-out hover:shadow-2xl`}
+                  whileTap={{ scale: 0.98, rotate: -1 }}
+                  className={`p-8 ${card.bgColor} rounded-3xl shadow-lg flex flex-col items-center transform transition-transform duration-500 ease-in-out hover:shadow-2xl`}
                 >
                   <div className="text-5xl mb-6">{card.icon}</div>
                   <h3 className="font-bold text-2xl text-orange-700">
