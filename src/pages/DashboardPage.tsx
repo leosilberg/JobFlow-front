@@ -132,6 +132,7 @@ export default function DashboardPage({}: DashboardPageProps) {
     if (isActiveATask && isOverAColumn) {
       console.log(`DashboardPage: drop over column`, overId);
       queryClient.setQueryData(["jobs"], (old: IJob[]) => {
+        console.log(`DashboardPage: `, old);
         const indexNext = old.findIndex(
           (job) => job.status > (overId as number)
         );
@@ -150,9 +151,11 @@ export default function DashboardPage({}: DashboardPageProps) {
         const newarr = arrayMove(
           old,
           oldjobIndex,
-          firstJobOfnext?.order && firstJobOfnext.order > oldjobIndex
+          (firstJobOfnext &&
+          firstJobOfnext.order &&
+          firstJobOfnext.order > oldjobIndex
             ? firstJobOfnext.order - 1
-            : firstJobOfnext.order || old.length - 1
+            : firstJobOfnext.order) || old.length - 1
         ).map((job, index) => ({
           ...job,
           order: index,
