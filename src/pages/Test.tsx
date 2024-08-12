@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,7 @@ import {
   SelectItem,
 } from "@/components/ui/select"; // Adjust the path as needed
 import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/contexts/AuthContext";
 const Job = {
   title: "Software Engineer",
   company: "XYZ Corp",
@@ -29,16 +30,34 @@ const Job = {
   contract_link: "https://google.com",
 };
 
-const loggenInUser = {
-  resume_link: "",
-};
-
 // Helper function to format the date
 const formatDate = (date: Date) => {
   return date ? format(date, "PPP") : "Not set";
 };
 
 export const Test = () => {
+  const { user } = useAuthContext();
+  const [fileContent, setFileContent] = useState(null);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (
+      file &&
+      file.type ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const arrayBuffer = e.target.result;
+        // Process the file content or upload it
+        setFileContent(arrayBuffer);
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      alert("Please upload a valid .docx file");
+    }
+  };
+
   return (
     <>
       <Dialog>
@@ -125,7 +144,7 @@ export const Test = () => {
             </div>
           </DialogDescription>
           <DialogFooter>
-            {loggenInUser.resume_link ? (
+            {user?.resume_link ? (
               <Button>Match CV</Button>
             ) : (
               <div>
@@ -135,6 +154,11 @@ export const Test = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <div>
+        <input type="file" accept=".docx" onChange={handleFileChange} />
+        {fileContent && <div>File uploaded successfully!</div>}
+      </div>
     </>
   );
 };
