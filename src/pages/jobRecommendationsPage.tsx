@@ -125,7 +125,7 @@ export const JobRecommendationsPage = () => {
           transition={{ duration: 0.5, delay: index * 0.2 }}
           className="lg:px-[9.8em] px-2"
         >
-          <Card className="my-4 border-2 border-orange-200 dark:border-none bg-gradient-to-tr from-orange-50 via-pink-50 to-red-50 dark:from-gray-800 dark:via-gray-900 dark:to-black">
+          <Card className="my-4 border-2 border-orange-200 dark:border-none bg-gradient-to-tr from-orange-50 via-pink-50 to-red-50 dark:from-gray-800 dark:via-gray-900 dark:to-black overflow-y-auto">
             <CardHeader title={job.title} />
             <CardContent>
               <CardTitle className="mb-4">{job.title}</CardTitle>
@@ -137,7 +137,7 @@ export const JobRecommendationsPage = () => {
                   Show result on LinkedIn{" "}
                   <FaLinkedin className="text-blue-700 text-[1.1em]" />
                 </DialogTrigger>
-                <DialogContent className="p-6 lg:max-w-2xl mx-auto max-h-[80vh] rounded-md overflow-y-auto">
+                <DialogContent className="p-6 lg:max-w-2xl mx-auto max-h-[80vh] overflow-y-auto lg:w-full  bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl  transition-colors duration-300 ease-in-out">
                   <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">
                       Here are some jobs I've found
@@ -148,13 +148,13 @@ export const JobRecommendationsPage = () => {
                           placeholder="Enter country"
                           value={country}
                           onChange={(e) => setCountry(e.target.value)}
-                          className="mb-4"
+                          className="mb-4 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                         />
                         <Input
                           placeholder="Enter minimum salary"
                           value={salary}
                           onChange={(e) => setSalary(e.target.value)}
-                          className="mb-4"
+                          className="mb-4 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                         />
                         <Select
                           value={remoteOption}
@@ -168,7 +168,10 @@ export const JobRecommendationsPage = () => {
                             <SelectItem value="hybrid">Hybrid</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Button onClick={handleFilterSubmit}>
+                        <Button
+                          onClick={handleFilterSubmit}
+                          className="w-full bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                        >
                           Apply Filters
                         </Button>
                         <div className="space-y-4 mt-4">
@@ -180,14 +183,14 @@ export const JobRecommendationsPage = () => {
                               target="_blank"
                               rel="noopener noreferrer"
                             >
-                              <Card className="shadow-lg border border-gray-200 rounded-lg p-4 transition-transform transform hover:scale-105 hover:shadow-xl">
+                              <Card className="shadow-lg border border-gray-200 rounded-lg p-4 dark:bg-gray-700 transition-transform transform hover:scale-105 hover:shadow-xl">
                                 <CardContent>
                                   <CardHeader>
-                                    <CardTitle className="text-lg font-semibold text-gray-800">
+                                    <CardTitle className="text-lg font-semibold dark:text-gray-200 text-gray-800">
                                       {job.position}
                                     </CardTitle>
                                   </CardHeader>
-                                  <CardFooter className="text-gray-600">
+                                  <CardFooter className="text-gray-600 dark:text-indigo-400">
                                     {job.company}
                                   </CardFooter>
                                 </CardContent>
