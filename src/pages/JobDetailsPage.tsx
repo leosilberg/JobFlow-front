@@ -21,12 +21,8 @@ import { format } from "date-fns";
 import { DollarSign, Link, MapPin, Trash } from "lucide-react";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEditJob, useRemoveJob } from "../mutations/job.mutations.ts";
 import { columns } from "./DashboardPage";
 import { useRemoveJob, useEditJob } from "../mutations/job.mutations.ts";
-import { CiEdit } from "react-icons/ci";
-import { Description } from "@radix-ui/react-toast";
-import api from "@/lib/api.ts";
 
 // Helper function to format the date
 const formatDate = (date?: Date) => {
