@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetJob } from "@/queries/job.query";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const loggenInUser = {
   resume_link: "",
@@ -33,6 +34,28 @@ export const JobDetails = () => {
   const params = useParams();
   const { data: job } = useGetJob(params.jobId!);
   const navigate = useNavigate();
+  const { user } = useAuthContext();
+  const [fileContent, setFileContent] = useState(null);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (
+      file &&
+      file.type ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const arrayBuffer = e.target.result;
+        // Process the file content or upload it
+        setFileContent(arrayBuffer);
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      alert("Please upload a valid .docx file");
+    }
+  };
+
   return (
     <>
       <Dialog open onOpenChange={(open) => !open && navigate("..")}>
@@ -144,6 +167,10 @@ export const JobDetails = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <div>
+        <input type="file" accept=".docx" onChange={handleFileChange} />
+        {fileContent && <div>File uploaded successfully!</div>}
+      </div>
     </>
   );
 };
