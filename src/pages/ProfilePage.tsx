@@ -4,6 +4,12 @@ import { FiMail, FiFileText } from "react-icons/fi";
 import { MdPerson, MdOutlineWork } from "react-icons/md";
 import axios from "axios";
 
+interface IJob {
+  title: string;
+  company: string;
+  link: string;
+}
+
 function ProfilePage() {
   const { user, uploadResume } = useAuthContext();
   const [fileContent, setFileContent] = useState<ArrayBuffer | null>(null);
@@ -101,7 +107,7 @@ function ProfilePage() {
             </span>
             <ul className="list-disc list-inside text-gray-800 dark:text-gray-200">
               {user?.jobs && user?.jobs.length > 0 ? (
-                user?.jobs.map((job, index) => (
+                user?.jobs.map((job: IJob, index: number) => (
                   <li key={index} className="flex justify-between items-center">
                     <span>{job.title}</span>
                     <a

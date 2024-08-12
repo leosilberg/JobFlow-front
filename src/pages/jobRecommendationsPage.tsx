@@ -23,10 +23,21 @@ import axios from "axios";
 import api from "@/lib/api";
 import { FaLinkedin } from "react-icons/fa";
 
+interface Job {
+  title: string;
+  description: string;
+}
+
+interface LinkedInJob {
+  jobUrl: string;
+  position: string;
+  company: string;
+}
+
 export const JobRecommendationsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [jobs, setJobs] = useState([]);
-  const [jobsByLinkedIn, setJobsByLinkedIn] = useState([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobsByLinkedIn, setJobsByLinkedIn] = useState<LinkedInJob[]>([]);
   const [country, setCountry] = useState("");
   const [salary, setSalary] = useState("");
   const [remoteOption, setRemoteOption] = useState("");
@@ -103,6 +114,10 @@ export const JobRecommendationsPage = () => {
     visible: { opacity: 1, y: 0 },
   };
 
+  const handleValueChange = (value: string) => {
+    setRemoteOption(value);
+  };
+
   if (isLoading)
     return <img src="spiner.svg" alt="" className="w-40 my-auto mx-auto" />;
 
@@ -157,9 +172,8 @@ export const JobRecommendationsPage = () => {
                           className="mb-4 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                         />
                         <Select
+                          onValueChange={handleValueChange}
                           value={remoteOption}
-                          onChange={(e) => setRemoteOption(e.target.value)}
-                          className="mb-4"
                         >
                           <SelectContent>
                             <SelectItem value="none">Any</SelectItem>
