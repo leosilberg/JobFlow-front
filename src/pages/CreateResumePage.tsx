@@ -490,6 +490,15 @@ export default function CreateResumePage({}: CreateResumePageProps) {
     });
   };
 
+  // async function handleEnhance() {
+  //   const data = {
+  //     profile: "",
+  //     educationDescriptions: [],
+  //     experienceDescriptions: [],
+  //     militaryDescriptions: [],
+  //   };
+  // }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -919,6 +928,14 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                     </Button>
                   </FormItem>
                 ))}
+
+                {/* <Button
+                  type="button"
+                  className="w-full relative inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-orange-500 to-pink-600 dark:from-indigo-700 dark:to-purple-800 text-white rounded-full shadow-lg hover:shadow-2xl mt-12 text-lg md:text-xl font-semibold transform transition-transform duration-200 ease-in-out hover:scale-105 hover:from-purple-500 hover:to-pink-500 dark:hover:from-purple-600 dark:hover:to-pink-700"
+                  onClick={handleEnhance}
+                >
+                  Enhance
+                </Button> */}
 
                 <Button
                   type="submit"
