@@ -21,26 +21,24 @@ import { format } from "date-fns";
 import { DollarSign, Link, MapPin, Trash } from "lucide-react";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEditJob, useRemoveJob } from "../mutations/job.mutations.ts";
 import { columns } from "./DashboardPage";
-
-const loggenInUser = {
-  resume_link: "",
-};
+import { useRemoveJob, useEditJob } from "../mutations/job.mutations.ts";
 
 // Helper function to format the date
-const formatDate = (date: Date) => {
+const formatDate = (date?: Date) => {
   return date ? format(date, "PPP") : "Not set";
 };
 
 export const JobDetails = () => {
+  const { user } = useAuthContext();
   const params = useParams();
   const { data: job } = useGetJob(params.jobId!);
   const navigate = useNavigate();
-  const { user } = useAuthContext();
   const removeJob = useRemoveJob();
   const editJob = useEditJob();
-  const [fileContent, setFileContent] = useState(null);
+  const [fileContent, setFileContent] = useState<string | ArrayBuffer | null>(
+    null
+  );
   const status = columns.find((column) => column.id)?.title;
   const location = useLocation();
 
@@ -50,8 +48,8 @@ export const JobDetails = () => {
   const salaryRef = useRef(null);
   const descriptionRef = useRef(null);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (
       file &&
       file.type ===
@@ -59,9 +57,11 @@ export const JobDetails = () => {
     ) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const arrayBuffer = e.target.result;
-        // Process the file content or upload it
-        setFileContent(arrayBuffer);
+        const arrayBuffer = e.target?.result;
+        if (arrayBuffer !== undefined) {
+          // Only set fileContent if arrayBuffer is defined
+          setFileContent(arrayBuffer);
+        }
       };
       reader.readAsArrayBuffer(file);
     } else {
@@ -69,11 +69,15 @@ export const JobDetails = () => {
     }
   };
   const handleRemoveJob = () => {
-    removeJob.mutate(job._id, {
-      onSuccess: () => {
-        navigate(location.state?.from || "..");
-      },
-    });
+    if (job) {
+      removeJob.mutate(job._id, {
+        onSuccess: () => {
+          navigate(location.state?.from || "..");
+        },
+      });
+    } else {
+      console.error("Job data is undefined, cannot remove the job.");
+    }
   };
   const handleEditJob = () => {
     editJob.mutate(job._id, {
@@ -82,6 +86,21 @@ export const JobDetails = () => {
       },
     });
   };
+
+  const parseDate = (dateString?: string): Date | undefined => {
+    return dateString ? new Date(dateString) : undefined;
+  };
+
+  // async function handleCreation() {
+  //   try {
+  //     const { data } = await api.post("openai/job-matcher", {
+  //       description: job?.description,
+  //     });
+  //     console.log(data);
+  //   } catch (error: any) {
+  //     console.log(error);
+  //   }
+  // }
 
   return (
     <>
@@ -239,7 +258,7 @@ export const JobDetails = () => {
               </div>
               <div className="py-2">
                 <strong>Interview Date:</strong>{" "}
-                {formatDate(job?.interview_date)}
+                {formatDate(parseDate(job?.interview_date))}
               </div>
               <div className="py-2">
                 <strong>Contract Link:</strong>{" "}
@@ -255,8 +274,11 @@ export const JobDetails = () => {
             </div>
           </DialogDescription>
           <DialogFooter>
-            {loggenInUser.resume_link ? (
-              <Button className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out">
+            {user?.resume_link ? (
+              <Button
+                // onClick={handleCreation}
+                className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+              >
                 Match CV
               </Button>
             ) : (
@@ -269,10 +291,6 @@ export const JobDetails = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <div>
-        <input type="file" accept=".docx" onChange={handleFileChange} />
-        {fileContent && <div>File uploaded successfully!</div>}
-      </div>
     </>
   );
 };

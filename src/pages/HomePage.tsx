@@ -24,9 +24,11 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const HomePage: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const { user } = useAuthContext();
 
   const toggleFAQ = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
@@ -161,20 +163,22 @@ const HomePage: React.FC = () => {
               Take Your Career to New Heights with our AI-Boosted All-in-One
               Platform.
             </p>
-            <button className="my-[3em] px-[2em] py-4 bg-gradient-to-r mx-auto from-orange-500 to-yellow-500 font-semibold text-white text-[1.5em] rounded-full shadow-md flex items-center justify-center transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gradient-to-r hover:from-orange-400 hover:to-yellow-500 focus:outline-none">
-              <motion.span
-                className="mr-2"
-                animate={{ x: [0, 5, 0] }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 2,
-                  ease: "easeInOut",
-                }}
-              >
-                Get Started for Free
-              </motion.span>
-              <FaArrowRight />
-            </button>
+            <Link to="/create-resume">
+              <button className="my-[3em] px-[2em] py-4 bg-gradient-to-r mx-auto from-orange-500 to-yellow-500 font-semibold text-white text-[1.5em] rounded-full shadow-md flex items-center justify-center transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gradient-to-r hover:from-orange-400 hover:to-yellow-500 focus:outline-noneuseAuthContext">
+                <motion.span
+                  className="mr-2"
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 2,
+                    ease: "easeInOut",
+                  }}
+                >
+                  Get Started for Free
+                </motion.span>
+                <FaArrowRight />
+              </button>
+            </Link>
           </header>
 
           <section className="w-full lg:px-[9.8em] px-2 text-center mb-10">

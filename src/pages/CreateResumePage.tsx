@@ -462,7 +462,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
   };
 
   const onSubmit = (data: CreateResumePageProps) => {
-    const parsedData = {
+    const parsedData: any = {
       ...data,
       education: data.education?.map((edu) => ({
         ...edu,
@@ -542,7 +542,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                     </FormItem>
                   )}
                 />
-                {/* Phone Field */}
+
                 <FormField
                   control={form.control}
                   name="phone"
@@ -584,7 +584,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                     </FormItem>
                   )}
                 />
-                {/* Email Field */}
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -628,7 +628,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                     <FaPlus className="mr-2" /> Add Education
                   </span>
                 </Button>
-                {/* Education Field Array */}
+
                 {educationFieldArray.fields.map((item, index) => (
                   <FormItem
                     key={item.id}
@@ -701,7 +701,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                 >
                   <FaPlus className="mr-2" /> Add Experience
                 </Button>
-                {/* Experience Field Array */}
+
                 {experienceFieldArray.fields.map((item, index) => (
                   <FormItem
                     key={item.id}
@@ -776,7 +776,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                 >
                   <FaPlus className="mr-2" /> Add Military Experience
                 </Button>
-                {/* Military Field Array */}
+
                 {militaryFieldArray.fields.map((item, index) => (
                   <FormItem
                     key={item.id}
@@ -848,7 +848,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                 >
                   <FaPlus className="mr-2" /> Add Skill
                 </Button>
-                {/* Skills Array - Direct Handling */}
+
                 {(form.watch("skills") || []).map((skill, index) => (
                   <FormItem key={index} className="flex items-center space-x-4">
                     <FormLabel className="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center">
@@ -898,7 +898,7 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                 >
                   <FaPlus className="mr-2" /> Add Language
                 </Button>
-                {/* Languages Array - Direct Handling */}
+
                 {(form.watch("languages") || []).map((language, index) => (
                   <FormItem key={index} className="flex items-center space-x-4">
                     <FormLabel className="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center">
@@ -928,14 +928,6 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                     </Button>
                   </FormItem>
                 ))}
-
-                {/* <Button
-                  type="button"
-                  className="w-full relative inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-orange-500 to-pink-600 dark:from-indigo-700 dark:to-purple-800 text-white rounded-full shadow-lg hover:shadow-2xl mt-12 text-lg md:text-xl font-semibold transform transition-transform duration-200 ease-in-out hover:scale-105 hover:from-purple-500 hover:to-pink-500 dark:hover:from-purple-600 dark:hover:to-pink-700"
-                  onClick={handleEnhance}
-                >
-                  Enhance
-                </Button> */}
 
                 <Button
                   type="submit"
