@@ -4,14 +4,14 @@ import { TOKEN_KEY } from "@/lib/consts.js";
 import { formatJWTToken } from "@/lib/jwt.utils.ts";
 import { LoginFormValues as LoginCredentials } from "@/pages/LoginPage.tsx";
 import { SignupFormValues } from "@/pages/SignupPage.tsx";
-import { User } from "@/types/IUser.ts";
+import { IUser } from "@/types/IUser";
 import { isAxiosError } from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type SignupCredentials = Omit<SignupFormValues, "confirmPassword">;
 
-type UserState = User | null | undefined;
+type UserState = IUser | null | undefined;
 
 interface AuthContextType {
   user: UserState;
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log(`AuthContext: `, token);
     async function loadUser() {
       try {
-        const { data: user } = await api.get<User>("/user");
+        const { data: user } = await api.get<IUser>("/user");
         setUser(user);
       } catch (error) {
         console.log(`AuthContext: `, error);
