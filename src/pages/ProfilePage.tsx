@@ -106,32 +106,13 @@ function ProfilePage() {
               Jobs Applied:
             </span>
             <ul className="list-disc list-inside text-gray-800 dark:text-gray-200">
-              {user?.jobs && user?.jobs.length > 0 ? (
-                user?.jobs.map((job: IJob, index: number) => (
-                  <li key={index} className="flex justify-between items-center">
-                    <span>{job.title}</span>
-                    <a
-                      href={job.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 underline"
-                    >
-                      {job.company}
-                    </a>
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-600 dark:text-gray-400">
-                  No jobs applied yet
-                </li>
-              )}
+              <li className="text-gray-600 dark:text-gray-400">
+                No jobs applied yet
+              </li>
             </ul>
           </div>
         </div>
       </div>
-
-      <input type="file" accept=".docx" onChange={handleFileChange} />
-      {fileUploaded && <div>File uploaded successfully!</div>}
     </>
   );
 }

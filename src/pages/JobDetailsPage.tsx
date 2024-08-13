@@ -79,28 +79,10 @@ export const JobDetails = () => {
       console.error("Job data is undefined, cannot remove the job.");
     }
   };
-  const handleEditJob = () => {
-    editJob.mutate(job._id, {
-      onSuccess: () => {
-        navigate(location.state?.from || "..");
-      },
-    });
-  };
 
   const parseDate = (dateString?: string): Date | undefined => {
     return dateString ? new Date(dateString) : undefined;
   };
-
-  // async function handleCreation() {
-  //   try {
-  //     const { data } = await api.post("openai/job-matcher", {
-  //       description: job?.description,
-  //     });
-  //     console.log(data);
-  //   } catch (error: any) {
-  //     console.log(error);
-  //   }
-  // }
 
   return (
     <>
