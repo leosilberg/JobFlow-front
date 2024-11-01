@@ -1,21 +1,32 @@
-import { JobValues } from "@/pages/CreateJobPage.tsx";
-import { JobService } from "@/services/job.service.ts";
+import api from "@/lib/api.ts";
 import { IJob } from "@/types/job.types.ts";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useAddJob() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (newJob: JobValues) => JobService.createJob(newJob),
+    mutationFn: async (newJob: Partial<Omit<IJob, "_id">>) => {
+      const { data } = await api.post<IJob>("job", newJob);
+      return data;
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
     },
   });
 }
+
 export function useUpdateJob() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (jobs: IJob[]) => JobService.updateOrder(jobs),
+    mutationFn: async (jobs: IJob[]) => {
+      const { data } = await api.patch<IJob>("job/order", {
+        jobs: jobs.map((job) => ({
+          _id: job._id,
+          changes: { order: job.order, status: job.status },
+        })),
+      });
+      return data;
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
     },
@@ -27,9 +38,12 @@ export function useEditJob() {
   return useMutation<
     IJob,
     Error,
-    { jobId: string; changes: Partial<Omit<IJob, "_id" | "userId">> }
+    { jobId: string; changes: Partial<Omit<IJob, "_id">> }
   >({
-    mutationFn: ({ jobId, changes }) => JobService.editJob(jobId, changes),
+    mutationFn: async ({ jobId, changes }) => {
+      const { data } = await api.patch<IJob>(`job/${jobId}`, changes);
+      return data;
+    },
     onMutate: ({ jobId, changes }) => {
       const prevJobs = queryClient.getQueryData<IJob[]>(["jobs"]);
       queryClient.setQueryData(
@@ -43,8 +57,8 @@ export function useEditJob() {
       });
       return { prevJobs };
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["jobs", "job"] });
+    onSettled: (job, error, { jobId }) => {
+      queryClient.invalidateQueries({ queryKey: ["jobs", jobId] });
     },
   });
 }
@@ -52,7 +66,10 @@ export function useEditJob() {
 export function useRemoveJob() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (jobId: string) => JobService.deleteJob(jobId),
+    mutationFn: async (jobId: string) => {
+      const { data } = await api.delete<IJob>(`job/${jobId}`);
+      return data;
+    },
     onMutate: (jobId: string) => {
       const prevJobs = queryClient.getQueryData<IJob[]>(["jobs"]);
       queryClient.setQueryData(

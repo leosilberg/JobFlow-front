@@ -1,8 +1,8 @@
 import { useAuthContext } from "@/contexts/AuthContext";
-import { useState } from "react";
-import { FiMail, FiFileText } from "react-icons/fi";
-import { MdPerson, MdOutlineWork } from "react-icons/md";
 import axios from "axios";
+import { useState } from "react";
+import { FiFileText, FiMail } from "react-icons/fi";
+import { MdOutlineWork, MdPerson } from "react-icons/md";
 
 interface IJob {
   title: string;
@@ -100,6 +100,8 @@ function ProfilePage() {
               </span>
             )}
           </div>
+          <input type="file" accept=".docx" onChange={handleFileChange} />
+          {fileUploaded && <div>File uploaded successfully!</div>}
           <div className="grid gap-2">
             <span className="flex items-center text-gray-600 dark:text-gray-400 font-medium">
               <MdOutlineWork className="mr-2 text-pink-500 dark:text-indigo-400" />

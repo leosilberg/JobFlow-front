@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input.tsx";
+
 import {
   Select,
   SelectContent,
@@ -16,13 +17,16 @@ import {
   SelectTrigger,
 } from "@/components/ui/select"; // Adjust the path as needed
 import { useAuthContext } from "@/contexts/AuthContext";
-import { useGetJob } from "@/queries/job.query";
+import api from "@/lib/api.ts";
+import { useEditJob, useRemoveJob } from "@/mutations/job.mutations.ts";
+import { useGetJob } from "@/queries/job.query.ts";
+import axios from "axios";
 import { format } from "date-fns";
+import saveAs from "file-saver";
 import { DollarSign, Link, MapPin, Trash } from "lucide-react";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { columns } from "./DashboardPage";
-import { useRemoveJob, useEditJob } from "../mutations/job.mutations.ts";
 
 // Helper function to format the date
 const formatDate = (date?: Date) => {
@@ -30,7 +34,7 @@ const formatDate = (date?: Date) => {
 };
 
 export const JobDetails = () => {
-  const { user } = useAuthContext();
+  const { user, uploadResume } = useAuthContext();
   const params = useParams();
   const { data: job } = useGetJob(params.jobId!);
   const navigate = useNavigate();
@@ -84,6 +88,49 @@ export const JobDetails = () => {
     return dateString ? new Date(dateString) : undefined;
   };
 
+  async function handleCreation() {
+    try {
+      const { data: blob } = await api.post(
+        "openai/job-matcher",
+        {
+          description: job?.description,
+        },
+        {
+          responseType: "blob",
+        }
+      );
+      saveAs(blob, "cv.docx");
+
+      // Upload to Cloudinary
+      const formData = new FormData();
+      formData.append("file", blob, "cv.docx");
+      formData.append("upload_preset", "ml_default"); // Replace with your Cloudinary upload preset
+
+      try {
+        const uploadResponse = await axios.post(
+          "https://api.cloudinary.com/v1_1/dipx5fuza/upload",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        // Extract URL from response
+        const fileUrl = uploadResponse.data.secure_url;
+
+        editJob.mutate({
+          jobId: job._id,
+          changes: { custom_resume_link: fileUrl },
+        });
+      } catch (uploadError) {
+        console.error("Error uploading file to Cloudinary:", uploadError);
+      }
+    } catch (error: any) {
+      console.log(error);
+    }
+  }
   return (
     <>
       <Dialog open onOpenChange={(open) => !open && navigate("..")}>
@@ -257,12 +304,27 @@ export const JobDetails = () => {
           </DialogDescription>
           <DialogFooter>
             {user?.resume_link ? (
-              <Button
-                // onClick={handleCreation}
-                className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
-              >
-                Match CV
-              </Button>
+              job.custom_resume_link ? (
+                <Button
+                  onClick={() => {
+                    window.open(
+                      job.custom_resume_link,
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                  }}
+                  className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                >
+                  Dowload CV
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleCreation}
+                  className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                >
+                  Match CV
+                </Button>
+              )
             ) : (
               <div className="flex gap-2">
                 <Button className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out">

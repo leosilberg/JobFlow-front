@@ -2,6 +2,7 @@ import { JobSummary } from "@/components/JobSummary.tsx";
 import { StatusColumn } from "@/components/StatusColumn.tsx";
 import { useUpdateJob } from "@/mutations/job.mutations.ts";
 import { useGetFilteredJobs } from "@/queries/job.query.ts";
+
 import { IJob } from "@/types/job.types.ts";
 import {
   DndContext,
