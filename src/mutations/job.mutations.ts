@@ -19,7 +19,7 @@ export function useUpdateJob() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (jobs: IJob[]) => {
-      const { data } = await api.patch<IJob>("job/order", {
+      const { data } = await api.patch<string>("job/order", {
         jobs: jobs.map((job) => ({
           _id: job._id,
           changes: { order: job.order, status: job.status },
@@ -45,11 +45,11 @@ export function useEditJob() {
       return data;
     },
     onMutate: ({ jobId, changes }) => {
-      const prevJobs = queryClient.getQueryData<IJob[]>(["jobs"]);
+      const prevJobs = queryClient.getQueryData<IJob[][]>(["jobs"]);
       queryClient.setQueryData(
         ["jobs"],
-        prevJobs?.map((job) =>
-          job._id === jobId ? { ...job, ...changes } : job
+        prevJobs?.map((jobs) =>
+          jobs?.map((job) => (job._id === jobId ? { ...job, ...changes } : job))
         )
       );
       queryClient.setQueryData(["job", { jobId }], (old: IJob) => {
@@ -71,10 +71,10 @@ export function useRemoveJob() {
       return data;
     },
     onMutate: (jobId: string) => {
-      const prevJobs = queryClient.getQueryData<IJob[]>(["jobs"]);
+      const prevJobs = queryClient.getQueryData<IJob[][]>(["jobs"]);
       queryClient.setQueryData(
         ["jobs"],
-        prevJobs?.filter((job) => job._id !== jobId)
+        prevJobs?.map((jobs) => jobs?.filter((job) => job._id !== jobId))
       );
       return { prevJobs };
     },

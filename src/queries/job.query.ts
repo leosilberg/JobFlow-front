@@ -5,20 +5,24 @@ import { useCallback } from "react";
 
 export function useGetFilteredJobs(filter: string) {
   const select = useCallback(
-    (data: IJob[]) =>
-      data.filter((job) =>
-        job.title.toLowerCase().includes(filter.toLowerCase())
+    (data: IJob[][]) =>
+      data.map((jobs) =>
+        jobs
+          ? jobs.filter((job) =>
+              job.title.toLowerCase().includes(filter.toLowerCase())
+            )
+          : []
       ),
     [filter]
   );
   return useGetAllJobs(select);
 }
 
-export function useGetAllJobs<T>(select: (data: IJob[]) => T) {
+export function useGetAllJobs<T>(select: (data: IJob[][]) => T) {
   return useQuery({
     queryKey: ["jobs"],
     queryFn: async ({ signal }) => {
-      const { data } = await api.get<IJob[]>("job", { signal });
+      const { data } = await api.get<IJob[][]>("job", { signal });
       return data;
     },
     select,
