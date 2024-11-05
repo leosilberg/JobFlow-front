@@ -58,7 +58,7 @@ export function useEditJob() {
       return { prevJobs };
     },
     onSettled: (job, error, { jobId }) => {
-      queryClient.invalidateQueries({ queryKey: ["jobs", jobId] });
+      queryClient.invalidateQueries({ queryKey: ["jobs", "job", jobId] });
     },
   });
 }

@@ -236,11 +236,11 @@ export default function CreateJobPage() {
                               <SelectValue placeholder="Select a status" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="1">Wishlist</SelectItem>
-                              <SelectItem value="2">Applied</SelectItem>
-                              <SelectItem value="3">Interview</SelectItem>
-                              <SelectItem value="4">Offer</SelectItem>
-                              <SelectItem value="5">Rejected</SelectItem>
+                              <SelectItem value="0">Wishlist</SelectItem>
+                              <SelectItem value="1">Applied</SelectItem>
+                              <SelectItem value="2">Interview</SelectItem>
+                              <SelectItem value="3">Offer</SelectItem>
+                              <SelectItem value="4">Rejected</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>

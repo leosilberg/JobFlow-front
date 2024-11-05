@@ -15,11 +15,18 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select"; // Adjust the path as needed
 import { useAuthContext } from "@/contexts/AuthContext";
 import api from "@/lib/api.ts";
-import { useEditJob, useRemoveJob } from "@/mutations/job.mutations.ts";
+import {
+  useEditJob,
+  useRemoveJob,
+  useUpdateJob,
+} from "@/mutations/job.mutations.ts";
 import { useGetJob } from "@/queries/job.query.ts";
+import { IJob } from "@/types/job.types";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { format } from "date-fns";
 import saveAs from "file-saver";
@@ -43,7 +50,7 @@ export const JobDetails = () => {
   const [fileContent, setFileContent] = useState<string | ArrayBuffer | null>(
     null
   );
-  const status = columns.find((column) => column.id)?.title;
+  const status = columns[job?.status];
   const location = useLocation();
 
   const titleRef = useRef(null);
@@ -83,6 +90,37 @@ export const JobDetails = () => {
       console.error("Job data is undefined, cannot remove the job.");
     }
   };
+
+  const queryClient = useQueryClient();
+  const update = useUpdateJob();
+  async function handleEditStatus(newStatus: number) {
+    const copy = queryClient
+      .getQueryData<IJob[][]>(["jobs"])
+      ?.map((jobs) => (jobs ? [...jobs] : []));
+
+    const prevStatus = job.status;
+
+    copy[prevStatus].splice(job.order, 1);
+    copy[prevStatus] = copy[prevStatus].map((job, index) => ({
+      ...job,
+      order: index,
+    }));
+
+    if (copy[newStatus]) {
+      copy[newStatus].push({ ...job, status: newStatus });
+    } else {
+      copy[newStatus] = [{ ...job, status: newStatus }];
+    }
+    copy[newStatus] = copy[newStatus].map((job, index) => ({
+      ...job,
+      order: index,
+    }));
+    queryClient.setQueryData(["job", { jobId: job._id }], (old: IJob) => {
+      return { ...old, status: newStatus };
+    });
+    await update.mutateAsync(copy[newStatus].concat(copy[prevStatus]));
+    queryClient.invalidateQueries({ queryKey: ["job", { jobId: job._id }] });
+  }
 
   const parseDate = (dateString?: string): Date | undefined => {
     return dateString ? new Date(dateString) : undefined;
@@ -170,29 +208,7 @@ export const JobDetails = () => {
                 </button>
               </DialogTitle>
             </div>
-            <div className="flex items-center space-x-2">
-              <Select
-                onValueChange={(value) =>
-                  editJob.mutate({
-                    jobId: job!._id,
-                    changes: { status: parseInt(value) },
-                  })
-                }
-                value={job?.status.toString()}
-              >
-                <SelectTrigger className="border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-                  <span className="sr-only">Select an action</span>{" "}
-                  <p>Actions</p>
-                </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-                  <SelectItem value="1">Wishlist</SelectItem>
-                  <SelectItem value="2">Applied</SelectItem>
-                  <SelectItem value="3">Interview</SelectItem>
-                  <SelectItem value="4">Offer</SelectItem>
-                  <SelectItem value="5">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <div className="flex items-center space-x-2"></div>
           </DialogHeader>
           <DialogDescription>
             <div className="grid gap-2 lg:px-4 text-gray-700 dark:text-gray-300">
@@ -283,7 +299,22 @@ export const JobDetails = () => {
                 </Editable>
               </div>
               <div className="py-2">
-                <strong>Status:</strong> {status}
+                <strong>Status:</strong>
+                <Select
+                  onValueChange={(value) => handleEditStatus(parseInt(value))}
+                  value={job?.status.toString()}
+                >
+                  <SelectTrigger className="border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                    <SelectItem value="0">Wishlist</SelectItem>
+                    <SelectItem value="1">Applied</SelectItem>
+                    <SelectItem value="2">Interview</SelectItem>
+                    <SelectItem value="3">Offer</SelectItem>
+                    <SelectItem value="4">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="py-2">
                 <strong>Interview Date:</strong>{" "}
@@ -304,27 +335,28 @@ export const JobDetails = () => {
           </DialogDescription>
           <DialogFooter>
             {user?.resume_link ? (
-              job.custom_resume_link ? (
-                <Button
-                  onClick={() => {
-                    window.open(
-                      job.custom_resume_link,
-                      "_blank",
-                      "noopener,noreferrer"
-                    );
-                  }}
-                  className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
-                >
-                  Dowload CV
-                </Button>
-              ) : (
+              <div>
+                {job?.custom_resume_link && (
+                  <Button
+                    onClick={() => {
+                      window.open(
+                        job.custom_resume_link,
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
+                    }}
+                    className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                  >
+                    Dowload CV
+                  </Button>
+                )}
                 <Button
                   onClick={handleCreation}
                   className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
                 >
                   Match CV
                 </Button>
-              )
+              </div>
             ) : (
               <div className="flex gap-2">
                 <Button className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out">
