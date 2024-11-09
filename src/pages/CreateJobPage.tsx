@@ -57,7 +57,7 @@ const formSchema = z.object({
 export default function CreateJobPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const initialStatus = searchParams.get("status") || "1";
+  const initialStatus = searchParams.get("status") || "0";
   const form = useForm<JobValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {

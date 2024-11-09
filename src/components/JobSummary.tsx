@@ -2,10 +2,10 @@ import { IJob } from "@/types/job.types.ts";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cva } from "class-variance-authority";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader } from "./ui/card.tsx";
-import { useRemoveJob } from "../mutations/job.mutations.ts";
 import { Trash } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useRemoveJob } from "../mutations/job.mutations.ts";
+import { Card, CardContent, CardHeader } from "./ui/card.tsx";
 type JobSummaryProps = {
   job: IJob;
   isOverlay?: boolean;
@@ -60,7 +60,10 @@ export function JobSummary({ job, isOverlay }: JobSummaryProps) {
         {...listeners}
       ></CardHeader>
       <CardContent className="px-3 pt-3 pb-6 flex items-center justify-between text-left cursor-pointer  whitespace-pre-wrap">
-        {job.title}{" "}
+        <div className="flex flex-col">
+          <p className="font-bold">{job.title} </p>
+          <p>{job.company}</p>
+        </div>
         <button
           className="text-red-500 dark:text-red-400 hidden group-hover:block"
           onClick={(event) => {
