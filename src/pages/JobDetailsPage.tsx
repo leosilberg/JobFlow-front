@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select"; // Adjust the path as needed
 import { useAuthContext } from "@/contexts/AuthContext";
 import api from "@/lib/api.ts";
+import { uploadFile } from "@/lib/cloudinary";
 import {
   useEditJob,
   useRemoveJob,
@@ -27,7 +28,6 @@ import {
 import { useGetJob } from "@/queries/job.query.ts";
 import { IJob } from "@/types/job.types";
 import { useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { format } from "date-fns";
 import saveAs from "file-saver";
 import { DollarSign, Link, MapPin, Trash } from "lucide-react";
@@ -59,26 +59,6 @@ export const JobDetails = () => {
   const salaryRef = useRef(null);
   const descriptionRef = useRef(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (
-      file &&
-      file.type ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const arrayBuffer = e.target?.result;
-        if (arrayBuffer !== undefined) {
-          // Only set fileContent if arrayBuffer is defined
-          setFileContent(arrayBuffer);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    } else {
-      alert("Please upload a valid .docx file");
-    }
-  };
   const handleRemoveJob = () => {
     if (job) {
       removeJob.mutate(job._id, {
@@ -139,32 +119,12 @@ export const JobDetails = () => {
       );
       saveAs(blob, "cv.docx");
 
-      // Upload to Cloudinary
-      const formData = new FormData();
-      formData.append("file", blob, "cv.docx");
-      formData.append("upload_preset", "ml_default"); // Replace with your Cloudinary upload preset
+      const fileUrl = await uploadFile(blob);
 
-      try {
-        const uploadResponse = await axios.post(
-          "https://api.cloudinary.com/v1_1/dipx5fuza/upload",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        // Extract URL from response
-        const fileUrl = uploadResponse.data.secure_url;
-
-        editJob.mutate({
-          jobId: job._id,
-          changes: { custom_resume_link: fileUrl },
-        });
-      } catch (uploadError) {
-        console.error("Error uploading file to Cloudinary:", uploadError);
-      }
+      editJob.mutate({
+        jobId: job._id,
+        changes: { custom_resume_link: fileUrl },
+      });
     } catch (error: any) {
       console.log(error);
     }

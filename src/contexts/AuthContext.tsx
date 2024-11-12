@@ -38,9 +38,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   async function uploadResume(url: string) {
-    console.log(url);
     try {
       const { data } = await api.patch("/user", { resume_link: url });
+      setUser((prev) => {
+        return { ...prev, resume_link: url };
+      });
       return data;
     } catch (error) {
       console.log(`AuthContext: `, error);
