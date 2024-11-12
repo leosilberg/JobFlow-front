@@ -9,7 +9,7 @@ export function useGetFilteredJobs(filter: string) {
       data.map((jobs) =>
         jobs
           ? jobs.filter((job) =>
-              job.title.toLowerCase().includes(filter.toLowerCase())
+              job.position.toLowerCase().includes(filter.toLowerCase())
             )
           : []
       ),

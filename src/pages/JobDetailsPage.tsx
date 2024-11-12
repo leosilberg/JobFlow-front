@@ -53,7 +53,7 @@ export const JobDetails = () => {
   const status = columns[job?.status];
   const location = useLocation();
 
-  const titleRef = useRef(null);
+  const positionRef = useRef(null);
   const locationRef = useRef(null);
   const companyRef = useRef(null);
   const salaryRef = useRef(null);
@@ -143,17 +143,17 @@ export const JobDetails = () => {
             <div className="flex items-center flex-1">
               <DialogTitle className="text-xl font-bold flex gap-3 items-center tracking-wide text-gray-800 dark:text-gray-100">
                 <Editable
-                  text={job?.title}
-                  inputRef={titleRef}
+                  text={job?.position}
+                  inputRef={positionRef}
                   className="font-bold"
                   onChange={(changes: any) => {
                     editJob.mutate({ jobId: job!._id, changes });
                   }}
                 >
                   <Input
-                    ref={titleRef}
-                    defaultValue={job?.title}
-                    name="title"
+                    ref={positionRef}
+                    defaultValue={job?.position}
+                    name="position"
                   />
                 </Editable>
                 <button className="text-red-500 dark:text-red-400">

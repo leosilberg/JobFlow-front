@@ -5,12 +5,6 @@ import { useState } from "react";
 import { FiFileText, FiMail } from "react-icons/fi";
 import { MdOutlineWork, MdPerson } from "react-icons/md";
 
-interface IJob {
-  title: string;
-  company: string;
-  link: string;
-}
-
 function ProfilePage() {
   const { user, uploadResume } = useAuthContext();
   const [fileContent, setFileContent] = useState<ArrayBuffer | null>(null);

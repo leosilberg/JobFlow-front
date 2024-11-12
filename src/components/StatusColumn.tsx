@@ -52,7 +52,7 @@ export function StatusColumn({
   };
 
   const variants = cva(
-    "h-[500px] max-h-[500px] w-[250px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
+    "max-h-[580px] w-[270px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
     {
       variants: {
         dragging: {

@@ -1,8 +1,9 @@
 export type IJob = {
   _id: string;
   userId: string;
-  title: string;
+  position: string;
   company: string;
+  company_logo?: string;
   location: string;
   description: string;
   salary?: string;

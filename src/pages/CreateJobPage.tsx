@@ -32,17 +32,21 @@ import { useAddJob } from "@/mutations/job.mutations.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { MdWorkOutline } from "react-icons/md";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ScrollArea } from "../components/ui/scroll-area";
 
+import { Textarea } from "@/components/ui/textarea";
+import { useGetLinkedinJobDetails } from "@/queries/linkedin.query";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 
 export type JobValues = z.infer<typeof formSchema>;
 const formSchema = z.object({
-  title: z.string().min(2, "Title must be at least 2 characters long"),
+  position: z.string().min(2, "Title must be at least 2 characters long"),
   company: z.string().min(2, "Company must be at least 2 characters long"),
+  company_logo: z.string().url("Must be a valid URL").optional(),
   location: z.string().min(2, "Location must be at least 2 characters long"),
   description: z
     .string()
@@ -51,7 +55,6 @@ const formSchema = z.object({
   link: z.string().url("Must be a valid URL"),
   status: z.string(),
   interview_date: z.date().optional(),
-  contract_link: z.string().url().optional(),
 });
 
 export default function CreateJobPage() {
@@ -61,21 +64,53 @@ export default function CreateJobPage() {
   const form = useForm<JobValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
+      position: "",
       company: "",
+      company_logo: "",
       location: "",
       description: "",
       salary: undefined,
       link: "",
       status: initialStatus,
       interview_date: undefined,
-      contract_link: "",
     },
   });
 
+  const link = useWatch({ control: form.control, name: "link" });
+  const status = useWatch({ control: form.control, name: "status" });
+  const company_logo = useWatch({
+    control: form.control,
+    name: "company_logo",
+  });
+
   const addJob = useAddJob();
+
+  useEffect(() => {
+    addJob.isSuccess && navigate("/dashboard");
+  }, [addJob.isSuccess]);
+
   function onSubmit(values: JobValues) {
+    console.log(`CreateJobPage: `, values);
     addJob.mutate(values);
+  }
+
+  const [linkedinJobId, setLinkedinJobId] = useState("");
+  const { data: linkedinJobDetails, isFetching: linkedinJobDetailsLoading } =
+    useGetLinkedinJobDetails(linkedinJobId);
+
+  useEffect(() => {
+    if (linkedinJobDetails) {
+      form.setValue("position", linkedinJobDetails["position"]);
+      form.setValue("company", linkedinJobDetails["company"]);
+      form.setValue("company_logo", linkedinJobDetails["company_logo"]);
+      form.setValue("location", linkedinJobDetails["location"]);
+      form.setValue("description", linkedinJobDetails["description"]);
+    }
+  }, [linkedinJobDetails]);
+
+  function fillDetails() {
+    const jobId = link.replace(/\/$/, "").split("/").pop().split("-").pop();
+    setLinkedinJobId(jobId);
   }
 
   return (
@@ -87,21 +122,55 @@ export default function CreateJobPage() {
           </DialogTitle>
         </DialogHeader>
         <div className="flex items-center justify-center overflow-hidden px-8">
-          <ScrollArea className="h-full w-full">
+          <ScrollArea className="h-full w-full p-4">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="grid gap-4"
               >
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {/* Title Field */}
+                  <div className="col-span-2 flex gap-4 justify-between items-end">
+                    <FormField
+                      control={form.control}
+                      name="link"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormLabel className="text-gray-700 dark:text-gray-300">
+                            Link
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {link.startsWith("https://www.linkedin.com/jobs/view") && (
+                      <Button
+                        onClick={(event) => {
+                          fillDetails();
+                          event.preventDefault();
+                        }}
+                        className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                      >
+                        {linkedinJobDetailsLoading
+                          ? "Loading..."
+                          : "Fill Details"}
+                      </Button>
+                    )}
+                  </div>
+
                   <FormField
                     control={form.control}
-                    name="title"
+                    name="position"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Title
+                          Position
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -114,27 +183,6 @@ export default function CreateJobPage() {
                     )}
                   />
 
-                  {/* Company Field */}
-                  <FormField
-                    control={form.control}
-                    name="company"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Company
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Location Field */}
                   <FormField
                     control={form.control}
                     name="location"
@@ -154,19 +202,64 @@ export default function CreateJobPage() {
                     )}
                   />
 
-                  {/* Description Field */}
                   <FormField
                     control={form.control}
-                    name="description"
+                    name="company"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Description
+                          Company
                         </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
                             className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="company_logo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">
+                          Company Logo Link
+                        </FormLabel>
+                        <FormControl>
+                          <div className="flex gap-2 items-center">
+                            {company_logo && (
+                              <img
+                                src={company_logo}
+                                className="h-10 w-10 rounded-md"
+                              />
+                            )}
+                            <Input
+                              {...field}
+                              className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem className="col-span-2">
+                        <FormLabel className="text-gray-700 dark:text-gray-300">
+                          Description
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            className="h-48 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
                           />
                         </FormControl>
                         <FormMessage />
@@ -191,26 +284,6 @@ export default function CreateJobPage() {
                             onChange={(e) =>
                               field.onChange(parseFloat(e.target.value))
                             }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Link Field */}
-                  <FormField
-                    control={form.control}
-                    name="link"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Link
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
                           />
                         </FormControl>
                         <FormMessage />
@@ -249,78 +322,63 @@ export default function CreateJobPage() {
                     )}
                   />
 
-                  {/* Interview Date Field */}
-                  <FormField
-                    control={form.control}
-                    name="interview_date"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 mt-[0.1em]  dark:text-gray-300">
-                          Interview Date
-                        </FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 mt-0 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={(date) => {
-                                if (date) {
-                                  field.onChange(date);
+                  {status === "2" && (
+                    <FormField
+                      control={form.control}
+                      name="interview_date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-700 mt-[0.1em]  dark:text-gray-300">
+                            Interview Date
+                          </FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-full pl-3 mt-0 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Pick a date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={(date) => {
+                                  if (date) {
+                                    field.onChange(date);
+                                  }
+                                }}
+                                disabled={(date) =>
+                                  date < new Date() &&
+                                  date.getTime() < new Date().getTime()
                                 }
-                              }}
-                              disabled={(date) =>
-                                date < new Date() &&
-                                date.getTime() < new Date().getTime()
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </div>
 
-                {/* Contract Link Field */}
-                <FormField
-                  control={form.control}
-                  name="contract_link"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700 dark:text-gray-300">
-                        Contract Link
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {status === "3"}
 
-                {/* Submit Button */}
                 <Button
                   type="submit"
                   className="w-full bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"

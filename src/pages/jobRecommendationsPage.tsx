@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { motion } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -18,26 +17,32 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import axios from "axios";
 import api from "@/lib/api";
+import axios from "axios";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { FaLinkedin } from "react-icons/fa";
 
-interface Job {
+interface RecommendedJob {
   title: string;
   description: string;
+  jobs: LinkedInJob[];
 }
 
 interface LinkedInJob {
-  jobUrl: string;
   position: string;
   company: string;
+  companyLogo: string;
+  location: string;
+  date: string;
+  agoTime: string;
+  salary: string;
+  jobUrl: string;
 }
 
 export const JobRecommendationsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [jobsByLinkedIn, setJobsByLinkedIn] = useState<LinkedInJob[]>([]);
+  const [recommendedJobs, setRecommendedJobs] = useState<RecommendedJob[]>([]);
   const [country, setCountry] = useState("");
   const [salary, setSalary] = useState("");
   const [remoteOption, setRemoteOption] = useState("");
@@ -46,34 +51,40 @@ export const JobRecommendationsPage = () => {
     const abortController = new AbortController();
     const fetchJobs = async () => {
       try {
-        const params = {
-          keyword: "software engineer",
-          location: "Israel",
-          dateSincePosted: "past week",
-          jobType: "full time",
-          remoteFilter: "remote",
-          salary: "1000",
-          experienceLevel: "entry level",
-          sortBy: "recent",
-          limit: 10,
-        };
-
-        const { data: var1 } = await axios.get(
-          "http://localhost:3000/api/linkedin",
+        const { data: recommendedJobs } = await api.get<RecommendedJob[]>(
+          "openai/job-recomendation",
           {
-            params,
             signal: abortController.signal,
           }
         );
 
-        setJobsByLinkedIn(var1.jobs);
-
-        const { data: var2 } = await api.get("openai/job-recomendation", {
-          signal: abortController.signal,
-        });
-        console.log(var2);
-
-        setJobs(var2);
+        // const data = await Promise.allSettled(
+        //   recommendedJobs.map((job) =>
+        //     axios.get<LinkedInJob[]>("http://localhost:3000/api/linkedin", {
+        //       params: {
+        //         keyword: job.title,
+        //         location: "Israel",
+        //         dateSincePosted: "past Week",
+        //         jobType: "full time",
+        //         remoteFilter: "remote",
+        //         salary: "1000",
+        //         experienceLevel: "entry level",
+        //         sortBy: "recent",
+        //         limit: "10",
+        //         page: "0",
+        //       },
+        //       signal: abortController.signal,
+        //     })
+        //   )
+        // );
+        // data.forEach((jobs, index) => {
+        //   if (jobs.status === "fulfilled")
+        //     recommendedJobs[index] = {
+        //       ...recommendedJobs[index],
+        //       jobs: jobs.value.data,
+        //     };
+        // });
+        setRecommendedJobs(recommendedJobs);
       } catch (error) {
         console.error("Error fetching jobs:", error);
       } finally {
@@ -84,30 +95,6 @@ export const JobRecommendationsPage = () => {
     fetchJobs();
     () => abortController.abort();
   }, []);
-
-  const handleFilterSubmit = async () => {
-    try {
-      const params = {
-        keyword: "software engineer",
-        location: country,
-        dateSincePosted: "past week",
-        jobType: "full time",
-        remoteFilter: remoteOption,
-        salary,
-        experienceLevel: "entry level",
-        sortBy: "recent",
-        limit: 10,
-      };
-
-      const { data } = await axios.get("http://localhost:3000/api/linkedin", {
-        params,
-      });
-
-      setJobsByLinkedIn(data.jobs);
-    } catch (error) {
-      console.error("Error fetching filtered jobs:", error);
-    }
-  };
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -131,7 +118,7 @@ export const JobRecommendationsPage = () => {
           Based on Your CV
         </h1>
       </div>
-      {jobs.map((job, index) => (
+      {recommendedJobs?.map((job, index) => (
         <motion.div
           key={job.title}
           initial="hidden"
@@ -148,14 +135,31 @@ export const JobRecommendationsPage = () => {
             </CardContent>
             <CardFooter>
               <Dialog>
-                <DialogTrigger className="btn flex items-center gap-2 btn-primary">
+                <DialogTrigger
+                  className="btn flex items-center gap-2 btn-primary"
+                  onClick={async () => {
+                    const { data } = await axios.get<LinkedInJob[]>(
+                      "http://localhost:3000/api/linkedin",
+                      {
+                        params: {
+                          keyword: recommendedJobs[0].title,
+                          location: "Israel",
+                          sortBy: "recent",
+                          limit: "10",
+                          page: "0",
+                        },
+                      }
+                    );
+                    console.log(`jobRecommendationsPage: `, data);
+                  }}
+                >
                   Show result on LinkedIn{" "}
                   <FaLinkedin className="text-blue-700 text-[1.1em]" />
                 </DialogTrigger>
                 <DialogContent className="p-6 lg:max-w-2xl mx-auto max-h-[80vh] overflow-y-auto lg:w-full  bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl  transition-colors duration-300 ease-in-out">
                   <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">
-                      Here are some jobs I've found
+                      Here are some jobs I've found for {job.title}
                     </DialogTitle>
                     <DialogDescription>
                       <div className="space-y-6">
@@ -182,14 +186,11 @@ export const JobRecommendationsPage = () => {
                             <SelectItem value="hybrid">Hybrid</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Button
-                          onClick={handleFilterSubmit}
-                          className="w-full bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
-                        >
+                        <Button className="w-full bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out">
                           Apply Filters
                         </Button>
                         <div className="space-y-4 mt-4">
-                          {jobsByLinkedIn.map((job, index) => (
+                          {job?.jobs?.map((job, index) => (
                             <a
                               key={index}
                               href={job.jobUrl}
