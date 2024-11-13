@@ -3,13 +3,21 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input.tsx";
 
+import FileDropzone from "@/components/FileDropZone";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -17,9 +25,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"; // Adjust the path as needed
+import { Textarea } from "@/components/ui/textarea";
 import { useAuthContext } from "@/contexts/AuthContext";
 import api from "@/lib/api.ts";
 import { uploadFile } from "@/lib/cloudinary";
+import { cn } from "@/lib/utils";
 import {
   useEditJob,
   useRemoveJob,
@@ -30,18 +40,20 @@ import { IJob } from "@/types/job.types";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import saveAs from "file-saver";
-import { DollarSign, Link, MapPin, Trash } from "lucide-react";
+import {
+  Brush,
+  CalendarIcon,
+  DollarSign,
+  Link,
+  MapPin,
+  Trash,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { columns } from "./DashboardPage";
 
-// Helper function to format the date
-const formatDate = (date?: Date) => {
-  return date ? format(date, "PPP") : "Not set";
-};
-
 export const JobDetails = () => {
-  const { user, uploadResume } = useAuthContext();
+  const { user } = useAuthContext();
   const params = useParams();
   const { data: job } = useGetJob(params.jobId!);
   const navigate = useNavigate();
@@ -102,10 +114,6 @@ export const JobDetails = () => {
     queryClient.invalidateQueries({ queryKey: ["job", { jobId: job._id }] });
   }
 
-  const parseDate = (dateString?: string): Date | undefined => {
-    return dateString ? new Date(dateString) : undefined;
-  };
-
   async function handleCreation() {
     try {
       const { data: blob } = await api.post(
@@ -117,7 +125,7 @@ export const JobDetails = () => {
           responseType: "blob",
         }
       );
-      saveAs(blob, "cv.docx");
+      saveAs(blob, `${job.position} ${job.company} Resume.docx`);
 
       const fileUrl = await uploadFile(blob);
 
@@ -132,69 +140,41 @@ export const JobDetails = () => {
   return (
     <>
       <Dialog open onOpenChange={(open) => !open && navigate("..")}>
-        <DialogContent
-          className="rounded-lg shadow-lg mx-auto h-[80vh] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 overflow-y-auto"
-          style={{
-            borderRadius: "20px",
-            boxShadow: "0 10px 20px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <DialogHeader className="flex items-center justify-between">
-            <div className="flex items-center flex-1">
-              <DialogTitle className="text-xl font-bold flex gap-3 items-center tracking-wide text-gray-800 dark:text-gray-100">
-                <Editable
-                  text={job?.position}
-                  inputRef={positionRef}
-                  className="font-bold"
-                  onChange={(changes: any) => {
-                    editJob.mutate({ jobId: job!._id, changes });
-                  }}
-                >
-                  <Input
-                    ref={positionRef}
-                    defaultValue={job?.position}
-                    name="position"
-                  />
-                </Editable>
-                <button className="text-red-500 dark:text-red-400">
-                  <Trash
-                    size={16}
-                    className="hover:animate-pulse"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleRemoveJob();
-                    }}
-                  />
-                </button>
-              </DialogTitle>
+        <DialogContent className="lg:max-w-2xl lg:w-full h-[80vh] p-6 bg-gradient-to-br from-whiteto-white dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl overflow-hidden transition-colors duration-300 ease-in-out">
+          <DialogHeader>
+            <DialogTitle className="text-2xl ">
+              <Editable
+                text={job?.position}
+                inputRef={positionRef}
+                onChange={(changes: any) => {
+                  editJob.mutate({ jobId: job!._id, changes });
+                }}
+              >
+                <Input
+                  ref={positionRef}
+                  defaultValue={job?.position}
+                  name="position"
+                />
+              </Editable>
+            </DialogTitle>
+            <div className=" flex items-center gap-2">
+              <Link size={16} />
+              <a
+                href={job?.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className=" text-blue-600 dark:text-blue-400 underline"
+              >
+                {job?.link}
+              </a>
             </div>
-            <div className="flex items-center space-x-2"></div>
           </DialogHeader>
-          <DialogDescription>
-            <div className="grid gap-2 lg:px-4 text-gray-700 dark:text-gray-300">
-              <div className="flex lg:justify-between flex-col lg:flex-row items-center">
-                <div className="text-gray-600 dark:text-gray-400 flex items-center">
-                  <DollarSign
-                    size={16}
-                    className="text-green-600 dark:text-green-400"
-                  />
-                  <Editable
-                    text={job?.salary}
-                    inputRef={salaryRef}
-                    onChange={(changes: any) => {
-                      editJob.mutate({ jobId: job!._id, changes });
-                    }}
-                  >
-                    <Input
-                      ref={salaryRef}
-                      defaultValue={job?.salary}
-                      name="salary"
-                    />
-                  </Editable>
-                </div>
-                <div className="text-gray-600 dark:text-gray-400 flex items-center">
+          <ScrollArea>
+            <div className="grid gap-4 p-4">
+              <div className="grid lg:grid-cols-2 grid-cols-1 items-center">
+                <div className="flex items-center gap-2">
                   <MapPin
-                    size={16}
+                    size={20}
                     className="text-orange-400 dark:text-orange-300"
                   />
                   <Editable
@@ -211,38 +191,54 @@ export const JobDetails = () => {
                     />
                   </Editable>
                 </div>
-                <div className="text-gray-600 dark:text-gray-400 flex items-center">
-                  <Link
-                    size={16}
-                    className="text-neutral-500 dark:text-neutral-400"
+                <div className=" flex items-center gap-2">
+                  <DollarSign
+                    size={20}
+                    className="text-green-600 dark:text-green-400"
                   />
-                  <a
-                    href={job?.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-1 text-blue-600 dark:text-blue-400 underline"
+                  <Editable
+                    text={job?.salary}
+                    inputRef={salaryRef}
+                    placeholder={"Edit Salary"}
+                    onChange={(changes: any) => {
+                      editJob.mutate({ jobId: job!._id, changes });
+                    }}
                   >
-                    {job?.link}
-                  </a>
+                    <Input
+                      ref={salaryRef}
+                      defaultValue={job?.salary}
+                      name="salary"
+                    />
+                  </Editable>
                 </div>
               </div>
-              <div className="py-2">
-                <strong>Company:</strong>{" "}
-                <Editable
-                  text={job?.company}
-                  inputRef={companyRef}
-                  onChange={(changes: any) => {
-                    editJob.mutate({ jobId: job!._id, changes });
-                  }}
-                >
-                  <Input
-                    ref={companyRef}
-                    defaultValue={job?.company}
-                    name="company"
-                  />
-                </Editable>
+
+              <div className="flex flex-col gap-2">
+                <strong>Company:</strong>
+                <div className="flex flex-row items-center justify-start gap-2">
+                  {job?.company_logo && (
+                    <img
+                      src={job.company_logo}
+                      className="w-12 h-12 rounded-sm"
+                    />
+                  )}
+                  <Editable
+                    text={job?.company}
+                    inputRef={companyRef}
+                    onChange={(changes: any) => {
+                      editJob.mutate({ jobId: job!._id, changes });
+                    }}
+                  >
+                    <Input
+                      ref={companyRef}
+                      defaultValue={job?.company}
+                      name="company"
+                    />
+                  </Editable>
+                </div>
               </div>
-              <div className="py-2">
+
+              <div className="flex flex-col gap-2">
                 <strong>Description:</strong>{" "}
                 <Editable
                   text={job?.description}
@@ -251,14 +247,16 @@ export const JobDetails = () => {
                     editJob.mutate({ jobId: job!._id, changes });
                   }}
                 >
-                  <Input
+                  <Textarea
                     ref={descriptionRef}
                     defaultValue={job?.description}
+                    className="resize-none h-48"
                     name="description"
                   />
                 </Editable>
               </div>
-              <div className="py-2">
+
+              <div className="flex flex-col gap-2">
                 <strong>Status:</strong>
                 <Select
                   onValueChange={(value) => handleEditStatus(parseInt(value))}
@@ -276,51 +274,116 @@ export const JobDetails = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="py-2">
-                <strong>Interview Date:</strong>{" "}
-                {formatDate(parseDate(job?.interview_date))}
-              </div>
-              <div className="py-2">
-                <strong>Contract Link:</strong>{" "}
-                <a
-                  href={job?.contract_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400 underline"
-                >
-                  {job?.contract_link}
-                </a>
-              </div>
+
+              {job?.status === 2 && (
+                <div className="flex flex-col gap-2">
+                  <strong>Interview Date</strong>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[280px] justify-start text-left font-normal",
+                          !job?.interview_date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon />
+                        {job?.interview_date ? (
+                          format(new Date(job?.interview_date), "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={new Date(job?.interview_date)}
+                        onSelect={(date) => {
+                          editJob.mutate({
+                            jobId: job!._id,
+                            changes: { interview_date: date.toISOString() },
+                          });
+                        }}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+
+              {job?.status === 3 && (
+                <div className="flex flex-col gap-2">
+                  <strong>Contract Link:</strong>
+                  <a
+                    href={job?.contract_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 dark:text-blue-400 underline"
+                  >
+                    {job?.contract_link}
+                  </a>
+                </div>
+              )}
             </div>
-          </DialogDescription>
-          <DialogFooter>
+          </ScrollArea>
+          <DialogFooter className="sm:justify-between items-center flex-row ">
+            <Button variant={"ghost"} size="icon" onClick={handleRemoveJob}>
+              <Trash className="text-red-600 size-8" />
+            </Button>
             {user?.resume_link ? (
-              <div>
-                {job?.custom_resume_link && (
+              <div className="flex gap-4 items-center">
+                {job?.custom_resume_link ? (
                   <Button
                     onClick={() => {
-                      window.open(
-                        job.custom_resume_link,
-                        "_blank",
-                        "noopener,noreferrer"
+                      saveAs(
+                        job?.custom_resume_link,
+                        `${job.position} ${job.company} Resume.docx`
                       );
                     }}
-                    className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                    className="border-pink-500 dark:indigo-600 hover:bg-clip-text hover:text-transparent hover:bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600"
+                    variant={"outline"}
                   >
-                    Dowload CV
+                    Download Resume
                   </Button>
+                ) : (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        className="border-pink-500 dark:indigo-600 hover:bg-clip-text hover:text-transparent hover:bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600"
+                        variant={"outline"}
+                      >
+                        Upload Resume
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Upload Resume</DialogTitle>
+                      </DialogHeader>
+                      <FileDropzone
+                        onFilesChange={async (files) => {
+                          const url = await uploadFile(files[0]);
+                          editJob.mutate({
+                            jobId: job._id,
+                            changes: { custom_resume_link: url },
+                          });
+                        }}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 )}
                 <Button
                   onClick={handleCreation}
-                  className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                  className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
                 >
-                  Match CV
+                  <Brush />
+                  AI Resume Writer
                 </Button>
               </div>
             ) : (
               <div className="flex gap-2">
                 <Button className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out">
-                  <a href="/create-resume">Create CV</a>
+                  <a href="/create-resume">Create Resume</a>
                 </Button>
               </div>
             )}

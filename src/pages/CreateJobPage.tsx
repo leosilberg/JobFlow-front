@@ -259,7 +259,7 @@ export default function CreateJobPage() {
                         <FormControl>
                           <Textarea
                             {...field}
-                            className="h-48 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
+                            className="h-48 resize-none border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
                           />
                         </FormControl>
                         <FormMessage />
@@ -346,7 +346,7 @@ export default function CreateJobPage() {
                                   ) : (
                                     <span>Pick a date</span>
                                   )}
-                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  <CalendarIcon className="ml-auto opacity-50" />
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>

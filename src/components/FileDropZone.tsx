@@ -35,7 +35,7 @@ const FileDropzone = ({
       dropzoneOptions={dropzone}
       className="relative bg-background rounded-lg p-2"
     >
-      <FileInput>
+      <FileInput className="outline-dashed outline-1 outline-white">
         <div className="flex items-center justify-center flex-col pt-3 pb-4 w-full ">
           <UploadCloud />
           <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">

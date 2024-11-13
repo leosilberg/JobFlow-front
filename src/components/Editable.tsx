@@ -1,3 +1,4 @@
+import { Edit2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Editable({
@@ -35,9 +36,13 @@ export default function Editable({
           {children}
         </div>
       ) : (
-        <div onClick={() => setEditing(true)}>
+        <p
+          className="flex items-center gap-2 group"
+          onClick={() => setEditing(true)}
+        >
           <span>{text || placeholder || "Editable content"}</span>
-        </div>
+          <Edit2 size={16} className="hidden group-hover:block" />
+        </p>
       )}
     </>
   );
