@@ -70,7 +70,9 @@ export default function CreateJobPage() {
       location: "",
       description: "",
       salary: undefined,
-      link: "",
+      link: searchParams.get("linkedIn")
+        ? `https://www.linkedin.com/jobs/view/${searchParams.get("linkedIn")}`
+        : "",
       status: initialStatus,
       interview_date: undefined,
     },
