@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import {
@@ -44,56 +44,38 @@ export const JobRecommendationsPage = () => {
 
   useEffect(() => {
     const abortController = new AbortController();
+
     const fetchJobs = async () => {
       try {
-        const params = {
-          keyword: "software engineer",
-          location: "Israel",
-          dateSincePosted: "past week",
-          jobType: "full time",
-          remoteFilter: "remote",
-          salary: "1000",
-          experienceLevel: "entry level",
-          sortBy: "recent",
-          limit: 10,
-        };
-
-        const { data: var1 } = await axios.get(
-          "http://localhost:3000/api/linkedin",
-          {
-            params,
-            signal: abortController.signal,
-          }
-        );
-
-        setJobsByLinkedIn(var1.jobs);
-
         const { data: var2 } = await api.get("openai/job-recomendation", {
           signal: abortController.signal,
         });
-        console.log(var2);
-
         setJobs(var2);
-      } catch (error) {
-        console.error("Error fetching jobs:", error);
-      } finally {
         setIsLoading(false);
+      } catch (error) {
+        if (axios.isCancel(error)) {
+          console.log("Request canceled", error.message);
+        } else {
+          console.error("Error fetching jobs:", error);
+        }
       }
     };
 
     fetchJobs();
-    () => abortController.abort();
+
+    return () => {
+      abortController.abort();
+    };
   }, []);
 
-  const handleFilterSubmit = async () => {
+  const handleLinkedInFetch = async (jobTitle: string) => {
     try {
       const params = {
-        keyword: "software engineer",
-        location: country,
-        dateSincePosted: "past week",
+        keyword: jobTitle,
+        location: "Israel",
+        dateSincePosted: "past month",
         jobType: "full time",
-        remoteFilter: remoteOption,
-        salary,
+        salary: "1000",
         experienceLevel: "entry level",
         sortBy: "recent",
         limit: 10,
@@ -105,7 +87,7 @@ export const JobRecommendationsPage = () => {
 
       setJobsByLinkedIn(data.jobs);
     } catch (error) {
-      console.error("Error fetching filtered jobs:", error);
+      console.error("Error fetching LinkedIn jobs:", error);
     }
   };
 
@@ -148,11 +130,14 @@ export const JobRecommendationsPage = () => {
             </CardContent>
             <CardFooter>
               <Dialog>
-                <DialogTrigger className="btn flex items-center gap-2 btn-primary">
+                <DialogTrigger
+                  onClick={() => handleLinkedInFetch(job.title)}
+                  className="btn flex items-center gap-2 btn-primary"
+                >
                   Show result on LinkedIn{" "}
                   <FaLinkedin className="text-blue-700 text-[1.1em]" />
                 </DialogTrigger>
-                <DialogContent className="p-6 lg:max-w-2xl mx-auto max-h-[80vh] overflow-y-auto lg:w-full  bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl  transition-colors duration-300 ease-in-out">
+                <DialogContent className="p-6 lg:max-w-2xl mx-auto max-h-[80vh] overflow-y-auto lg:w-full bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl transition-colors duration-300 ease-in-out">
                   <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">
                       Here are some jobs I've found
@@ -183,7 +168,7 @@ export const JobRecommendationsPage = () => {
                           </SelectContent>
                         </Select>
                         <Button
-                          onClick={handleFilterSubmit}
+                          onClick={() => handleLinkedInFetch(job.title)}
                           className="w-full bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
                         >
                           Apply Filters
