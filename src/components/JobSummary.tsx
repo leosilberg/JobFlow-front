@@ -2,9 +2,11 @@ import { IJob } from "@/types/job.types.ts";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cva } from "class-variance-authority";
-import { GripVertical, TrashIcon } from "lucide-react";
+import { format } from "date-fns";
+import { Check, GripVertical, TrashIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useRemoveJob } from "../mutations/job.mutations.ts";
+import { Badge } from "./ui/badge";
 import { Card, CardContent, CardHeader } from "./ui/card.tsx";
 type JobSummaryProps = {
   job: IJob;
@@ -54,10 +56,26 @@ export function JobSummary({ job, isOverlay }: JobSummaryProps) {
       })}
       onClick={() => navigate(`./job/${job._id}`)}
     >
-      <CardHeader className="px-3 py-3 space-y-0 flex flex-row  items-center justify-between border-b-2 ">
+      <CardHeader className="px-3 py-3 space-y-0 flex flex-row  gap-1 items-center border-b-2 ">
         <button className="cursor-grab" {...attributes} {...listeners}>
           <GripVertical size={16} />
         </button>
+        <div className="flex flex-grow justify-start gap-2">
+          {job.custom_resume_link && (
+            <Badge
+              variant="outline"
+              className="border-green-600 text-green-600 gap-1"
+            >
+              <Check size={16} />
+              Resume
+            </Badge>
+          )}
+          {job.interview_date && (
+            <Badge variant="outline" className="border-blue-600 text-blue-600">
+              {format(new Date(job?.interview_date), "dd/MM/yyyy")}
+            </Badge>
+          )}
+        </div>
         <button
           className="hidden group-hover:block"
           onClick={(event) => {
