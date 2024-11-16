@@ -37,7 +37,7 @@ import { MdWorkOutline } from "react-icons/md";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ScrollArea } from "../components/ui/scroll-area";
 
-import { Textarea } from "@/components/ui/textarea";
+import MinimalTiptapEditor from "@/components/minimal-tiptap/minimal-tiptap";
 import { useGetLinkedinJobDetails } from "@/queries/linkedin.query";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -259,9 +259,16 @@ export default function CreateJobPage() {
                           Description
                         </FormLabel>
                         <FormControl>
-                          <Textarea
+                          <MinimalTiptapEditor
                             {...field}
-                            className="h-48 resize-none border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
+                            className="w-full bg-background"
+                            editorContentClassName="p-5"
+                            output="html"
+                            placeholder="Type your description here..."
+                            autofocus={false}
+                            editable={true}
+                            editorClassName="focus:outline-none"
+                            throttleDelay={0}
                           />
                         </FormControl>
                         <FormMessage />

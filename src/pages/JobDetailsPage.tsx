@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input.tsx";
 
 import FileDropzone from "@/components/FileDropZone";
+import MinimalTiptapEditor from "@/components/minimal-tiptap/minimal-tiptap";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -25,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"; // Adjust the path as needed
-import { Textarea } from "@/components/ui/textarea";
 import { useAuthContext } from "@/contexts/AuthContext";
 import api from "@/lib/api.ts";
 import { uploadFile } from "@/lib/cloudinary";
@@ -48,7 +48,7 @@ import {
   MapPin,
   Trash,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { columns } from "./DashboardPage";
 
@@ -59,9 +59,7 @@ export const JobDetails = () => {
   const navigate = useNavigate();
   const removeJob = useRemoveJob();
   const editJob = useEditJob();
-  const [fileContent, setFileContent] = useState<string | ArrayBuffer | null>(
-    null
-  );
+
   const status = columns[job?.status];
   const location = useLocation();
 
@@ -212,7 +210,6 @@ export const JobDetails = () => {
                   </Editable>
                 </div>
               </div>
-
               <div className="flex flex-col gap-2">
                 <strong>Company:</strong>
                 <div className="flex flex-row items-center justify-start gap-2">
@@ -239,21 +236,24 @@ export const JobDetails = () => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <strong>Description:</strong>{" "}
-                <Editable
-                  text={job?.description}
-                  inputRef={descriptionRef}
-                  onChange={(changes: any) => {
-                    editJob.mutate({ jobId: job!._id, changes });
+                <strong>Description:</strong>
+                <MinimalTiptapEditor
+                  value={job?.description}
+                  onChange={(value) => {
+                    editJob.mutate({
+                      jobId: job!._id,
+                      changes: { description: value.toString() },
+                    });
                   }}
-                >
-                  <Textarea
-                    ref={descriptionRef}
-                    defaultValue={job?.description}
-                    className="resize-none h-48"
-                    name="description"
-                  />
-                </Editable>
+                  className="w-full"
+                  editorContentClassName="p-5"
+                  output="html"
+                  placeholder="Type your description here..."
+                  autofocus={true}
+                  editable={true}
+                  editorClassName="focus:outline-none"
+                  throttleDelay={5000}
+                />
               </div>
 
               <div className="flex flex-col gap-2">
@@ -274,7 +274,6 @@ export const JobDetails = () => {
                   </SelectContent>
                 </Select>
               </div>
-
               {job?.status === 2 && (
                 <div className="flex flex-col gap-2">
                   <strong>Interview Date</strong>
@@ -311,7 +310,6 @@ export const JobDetails = () => {
                   </Popover>
                 </div>
               )}
-
               {job?.status === 3 && (
                 <div className="flex flex-col gap-2">
                   <strong>Contract Link:</strong>
