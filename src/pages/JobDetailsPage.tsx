@@ -27,7 +27,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"; // Adjust the path as needed
 import { useAuthContext } from "@/contexts/AuthContext";
-import api from "@/lib/api.ts";
 import { uploadFile } from "@/lib/cloudinary";
 import { cn } from "@/lib/utils";
 import {
@@ -35,6 +34,7 @@ import {
   useRemoveJob,
   useUpdateJob,
 } from "@/mutations/job.mutations.ts";
+import { useCreateAIResume } from "@/mutations/openai.mutation";
 import { useGetJob } from "@/queries/job.query.ts";
 import { IJob } from "@/types/job.types";
 import { useQueryClient } from "@tanstack/react-query";
@@ -112,24 +112,21 @@ export const JobDetails = () => {
     queryClient.invalidateQueries({ queryKey: ["job", { jobId: job._id }] });
   }
 
+  const createAIResume = useCreateAIResume();
+
   async function handleCreation() {
     try {
-      const { data: blob } = await api.post(
-        "openai/job-matcher",
-        {
-          description: job?.description,
+      createAIResume.mutate(job.description, {
+        async onSuccess(data, variables, context) {
+          saveAs(data, `${job.position} ${job.company} Resume.docx`);
+
+          const fileUrl = await uploadFile(data);
+
+          editJob.mutate({
+            jobId: job._id,
+            changes: { custom_resume_link: fileUrl },
+          });
         },
-        {
-          responseType: "blob",
-        }
-      );
-      saveAs(blob, `${job.position} ${job.company} Resume.docx`);
-
-      const fileUrl = await uploadFile(blob);
-
-      editJob.mutate({
-        jobId: job._id,
-        changes: { custom_resume_link: fileUrl },
       });
     } catch (error: any) {
       console.log(error);
@@ -375,7 +372,9 @@ export const JobDetails = () => {
                   className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
                 >
                   <Brush />
-                  AI Resume Writer
+                  {createAIResume.isPending
+                    ? "Editing resume..."
+                    : " AI Resume Writer"}
                 </Button>
               </div>
             ) : (
