@@ -2,10 +2,12 @@ import { JobSummary } from "@/components/JobSummary.tsx";
 import { StatusColumn } from "@/components/StatusColumn.tsx";
 import { useUpdateJob } from "@/mutations/job.mutations.ts";
 import { useGetFilteredJobs } from "@/queries/job.query.ts";
+
 import { IJob } from "@/types/job.types.ts";
 import {
   DndContext,
   DragEndEvent,
+  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   KeyboardSensor,
@@ -15,41 +17,28 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 type DashboardPageProps = {};
 
 export const columns = [
-  {
-    id: 1,
-    title: "Wishlist",
-  },
-  { id: 2, title: "Applied" },
-  {
-    id: 3,
-    title: "Interview",
-  },
-  {
-    id: 4,
-    title: "Offer",
-  },
-  {
-    id: 5,
-    title: "Rejected",
-  },
+  "Wishlist",
+  "Applied",
+  "Interview",
+  "Offer",
+  "Rejected",
 ];
 
 export default function DashboardPage({}: DashboardPageProps) {
-  const columnsId = useMemo(() => columns.map((col) => col.title), [columns]);
   const { data: jobs = [] } = useGetFilteredJobs("");
   useEffect(() => {
     console.log(`DashboardPage: `, jobs);
   }, [jobs]);
-  const [activeColumn, setActiveColumn] = useState<string | null>(null);
 
-  const [activeTask, setActiveTask] = useState<IJob | null>(null);
+  const [selectedJob, setSelectedJob] = useState<IJob | null>(null);
+
   const queryClient = useQueryClient();
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -60,22 +49,37 @@ export default function DashboardPage({}: DashboardPageProps) {
 
   function onDragStart(event: DragStartEvent) {
     const data = event.active.data.current;
-    if (data?.type === "Column") {
-      setActiveColumn(data.column);
-      return;
-    }
 
     if (data?.type === "Job") {
-      setActiveTask(data.job);
+      setSelectedJob({ ...data.job });
       return;
     }
   }
 
   const update = useUpdateJob();
-  function onDragEnd(event: DragEndEvent) {
-    setActiveColumn(null);
-    setActiveTask(null);
 
+  function onDragEnd(event: DragEndEvent) {
+    setSelectedJob(null);
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeData = active.data.current;
+    const activeStatus = activeData.job.status;
+    const activeOrder = activeData.job.order;
+
+    const prevStatus = selectedJob.status;
+    const prevOrder = selectedJob.order;
+
+    if (activeStatus !== prevStatus) {
+      console.log(`DashboardPage: not same status,updating`);
+      update.mutate(jobs[activeStatus].concat(jobs[prevStatus]));
+    } else if (activeOrder != prevOrder) {
+      console.log(`DashboardPage: not same order,updating`);
+      update.mutate(jobs[activeStatus]);
+    }
+  }
+
+  function onDragOver(event: DragOverEvent) {
     const { active, over } = event;
     if (!over) return;
 
@@ -87,82 +91,80 @@ export default function DashboardPage({}: DashboardPageProps) {
     const activeData = active.data.current;
     const overData = over.data.current;
 
-    const isActiveATask = activeData?.type === "Job";
-    const isOverATask = overData?.type === "Job";
+    const isActiveAJob = activeData?.type === "Job";
+    const isOverAJob = overData?.type === "Job";
 
-    if (!isActiveATask) return;
+    if (!isActiveAJob) return;
+
+    const activeJob = activeData.job;
+    const activeStatus = activeJob.status;
 
     // Im dropping a Task over another Task
-    if (isActiveATask && isOverATask) {
-      const activeIndex = jobs?.findIndex((t) => t._id === activeId);
-      const overIndex = jobs?.findIndex((t) => t._id === overId);
-      const activeTask = jobs[activeIndex];
-      const overTask = jobs[overIndex];
-      if (activeTask && overTask && activeTask.status !== overTask.status) {
-        console.log(`DashboardPage: drop on job differnt status`);
-        return queryClient.setQueryData(["jobs"], (old: IJob[]) => {
-          const oldjob = old?.find((t) => t._id === activeId);
-          if (oldjob) oldjob.status = overTask.status;
-          const newarr = arrayMove(old, activeIndex, overIndex).map(
-            (job, index) => ({
-              ...job,
-              order: index,
-            })
-          );
-          update.mutate(newarr);
-          return newarr;
-        });
-      }
-      console.log(`DashboardPage: drop on job same status`);
-      return queryClient.setQueryData(["jobs"], (old: IJob[]) => {
-        const newarr = arrayMove(old, activeIndex, overIndex).map(
-          (job, index) => ({
+    if (isActiveAJob && isOverAJob) {
+      const overJob = overData.job;
+      const overStatus = overJob.status;
+      if (activeJob && overJob && activeStatus !== overStatus) {
+        console.log(`DashboardPage: drop on job different status`);
+        return queryClient.setQueryData(["jobs"], (oldjobs: IJob[][]) => {
+          const copy = oldjobs.map((jobs) => jobs && [...jobs]);
+          copy[activeStatus].splice(activeJob.order, 1);
+          copy[activeStatus] = copy[activeStatus].map((job, index) => ({
             ...job,
             order: index,
-          })
+          }));
+          activeJob.status = overStatus;
+          copy[overStatus].splice(overJob.order, 0, activeJob);
+          copy[overStatus] = copy[overStatus].map((job, index) => ({
+            ...job,
+            order: index,
+          }));
+          return copy;
+        });
+      }
+
+      console.log(`DashboardPage: drop on job same status`);
+      return queryClient.setQueryData(["jobs"], (oldjobs: IJob[][]) => {
+        const newjobs = arrayMove(
+          oldjobs[activeStatus],
+          activeJob.order,
+          overJob.order
+        ).map((job, index) => ({
+          ...job,
+          order: index,
+        }));
+
+        return oldjobs.map((jobs, index) =>
+          index === activeStatus ? newjobs : jobs && [...jobs]
         );
-        update.mutate(newarr);
-        return newarr;
       });
     }
 
     const isOverAColumn = overData?.type === "Column";
 
     // Im dropping a Task over a column
-    if (isActiveATask && isOverAColumn) {
+    if (isActiveAJob && isOverAColumn) {
       console.log(`DashboardPage: drop over column`, overId);
-      queryClient.setQueryData(["jobs"], (old: IJob[]) => {
-        console.log(`DashboardPage: `, old);
-        const indexNext = old.findIndex(
-          (job) => job.status > (overId as number)
-        );
-        console.log(`DashboardPage: next index`, indexNext);
-        const firstJobOfnext = old[indexNext];
-        console.log(
-          `DashboardPage: `,
-          firstJobOfnext,
-          firstJobOfnext?.order || old.length - 1
-        );
+      const overStatus = overId as number;
 
-        const oldjobIndex = old?.findIndex((t) => t._id === activeId);
-        console.log(oldjobIndex);
-
-        old[oldjobIndex].status = overId as number;
-        const newarr = arrayMove(
-          old,
-          oldjobIndex,
-          (firstJobOfnext &&
-          firstJobOfnext.order &&
-          firstJobOfnext.order > oldjobIndex
-            ? firstJobOfnext.order - 1
-            : firstJobOfnext.order) || old.length - 1
-        ).map((job, index) => ({
+      return queryClient.setQueryData(["jobs"], (oldjobs: IJob[][]) => {
+        const copy = oldjobs.map((jobs) => jobs && [...jobs]);
+        copy[activeStatus].splice(activeJob.order, 1);
+        copy[activeStatus] = copy[activeStatus].map((job, index) => ({
           ...job,
           order: index,
         }));
-        update.mutate(newarr);
-        return newarr;
-        return old;
+
+        activeJob.status = overStatus;
+        if (copy[overStatus]) {
+          copy[overStatus].push(activeJob);
+        } else {
+          copy[overStatus] = [activeJob];
+        }
+        copy[overStatus] = copy[overStatus].map((job, index) => ({
+          ...job,
+          order: index,
+        }));
+        return copy;
       });
     }
   }
@@ -172,41 +174,29 @@ export default function DashboardPage({}: DashboardPageProps) {
       <DndContext
         sensors={sensors}
         onDragStart={onDragStart}
+        onDragOver={onDragOver}
         onDragEnd={onDragEnd}
       >
-        <div className="flex gap-6  flex-wrap lg:items-start items-center lg:flex-row flex-col justify-center lg:py-10 py-6 bg-gradient-to-tr from-orange-100 via-pink-200 to-red-300 dark:bg-gradient-to-tr dark:from-gray-800 dark:via-gray-900 dark:to-black">
-          {columns.map((col) => (
+        <div className="flex flex-grow gap-6  flex-wrap lg:items-stretch items-center lg:flex-row flex-col justify-center py-6 bg-gradient-to-tr from-orange-100 via-pink-200 to-red-300 dark:bg-gradient-to-tr dark:from-gray-800 dark:via-gray-900 dark:to-black">
+          {columns.map((title, index) => (
             <StatusColumn
-              key={col.title}
-              column={col}
-              jobs={jobs?.filter((job) => job.status == col.id)}
-              className="bg-gradient-to-r from-orange-50 via-pink-100 to-red-100 dark:from-gray-700 dark:via-gray-800 dark:to-black p-5 rounded-2xl text-gray-800 dark:text-white shadow-lg hover:shadow-2xl transition-shadow duration-200 ease-in-out"
+              key={index}
+              column={{ title, id: index }}
+              jobs={jobs[index]}
             />
           ))}
         </div>
         {"document" in window &&
           createPortal(
             <DragOverlay>
-              {activeTask && (
+              {selectedJob && (
                 <div className="p-2 bg-gradient-to-r from-pink-100 via-red-200 to-orange-300 dark:bg-gradient-to-r dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 rounded-2xl transform transition-transform duration-200 ease-in-out">
-                  <JobSummary job={activeTask} isOverlay />
+                  <JobSummary job={selectedJob} isOverlay />
                 </div>
               )}
             </DragOverlay>,
             document.body
           )}
-        <footer className="w-full bg-gradient-to-br from-orange-100 via-pink-200 to-red-300 dark:from-gray-800 dark:via-gray-900 dark:to-black text-center text-gray-700 dark:text-gray-400 py-8">
-          <p>&copy; 2024 All rights reserved.</p>
-          <div className="mt-4">
-            <Link to="#" className="text-blue-600 dark:text-blue-400">
-              Privacy Policy
-            </Link>
-            {" | "}
-            <Link to="#" className="text-blue-600 dark:text-blue-400">
-              Terms of Service
-            </Link>
-          </div>
-        </footer>
       </DndContext>
       <Outlet />
     </>

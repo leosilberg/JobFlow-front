@@ -10,6 +10,7 @@ import DashboardPage from "./pages/DashboardPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import { JobDetails } from "./pages/JobDetailsPage.tsx";
 import { JobRecommendationsPage } from "./pages/jobRecommendationsPage.tsx";
+import LinkedinJobList from "./pages/LinkedinJobList";
 import LoginPage from "./pages/LoginPage.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
 import SignupPage from "./pages/SignupPage.tsx";
@@ -21,11 +22,11 @@ const router = createBrowserRouter([
     path: "/",
     element: <AppLayout />,
     children: [
+      { index: true, element: <HomePage /> },
       {
         path: "",
         element: <ProtectedLayout />,
         children: [
-          { index: true, element: <HomePage /> },
           {
             path: "dashboard",
             element: <DashboardPage />,
@@ -48,6 +49,12 @@ const router = createBrowserRouter([
           {
             path: "job-recommendations",
             element: <JobRecommendationsPage />,
+            children: [
+              {
+                path: "linkedin",
+                element: <LinkedinJobList />,
+              },
+            ],
           },
         ],
       },

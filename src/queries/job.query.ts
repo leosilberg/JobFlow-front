@@ -1,23 +1,30 @@
-import { JobService } from "@/services/job.service.ts";
+import api from "@/lib/api.ts";
 import { IJob } from "@/types/job.types.ts";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 export function useGetFilteredJobs(filter: string) {
   const select = useCallback(
-    (data: IJob[]) =>
-      data.filter((job) =>
-        job.title.toLowerCase().includes(filter.toLowerCase())
+    (data: IJob[][]) =>
+      data.map((jobs) =>
+        jobs
+          ? jobs.filter((job) =>
+              job.position.toLowerCase().includes(filter.toLowerCase())
+            )
+          : []
       ),
     [filter]
   );
-  return useGetJobs(select);
+  return useGetAllJobs(select);
 }
 
-export function useGetJobs<T>(select: (data: IJob[]) => T) {
+export function useGetAllJobs<T>(select: (data: IJob[][]) => T) {
   return useQuery({
     queryKey: ["jobs"],
-    queryFn: ({ signal }) => JobService.getJobs(signal),
+    queryFn: async ({ signal }) => {
+      const { data } = await api.get<IJob[][]>("job", { signal });
+      return data;
+    },
     select,
   });
 }
@@ -25,6 +32,9 @@ export function useGetJobs<T>(select: (data: IJob[]) => T) {
 export function useGetJob(jobId: string) {
   return useQuery({
     queryKey: ["job", { jobId }],
-    queryFn: ({ signal }) => JobService.getJob(jobId, signal),
+    queryFn: async ({ signal }) => {
+      const { data } = await api.get<IJob>(`job/${jobId}`, { signal });
+      return data;
+    },
   });
 }

@@ -1,67 +1,14 @@
+import FileDropzone from "@/components/FileDropZone";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { uploadFile } from "@/lib/cloudinary";
 import { useState } from "react";
-import { FiMail, FiFileText } from "react-icons/fi";
-import { MdPerson, MdOutlineWork } from "react-icons/md";
-import axios from "axios";
-
-interface IJob {
-  title: string;
-  company: string;
-  link: string;
-}
+import { FiFileText, FiMail } from "react-icons/fi";
+import { MdOutlineWork, MdPerson } from "react-icons/md";
 
 function ProfilePage() {
   const { user, uploadResume } = useAuthContext();
   const [fileContent, setFileContent] = useState<ArrayBuffer | null>(null);
   const [fileUploaded, setFileUploaded] = useState<boolean>(false);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (
-      file &&
-      file.type ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const arrayBuffer = e.target?.result as ArrayBuffer;
-        setFileContent(arrayBuffer);
-
-        try {
-          // Create a Blob from the ArrayBuffer
-          const blob = new Blob([arrayBuffer], {
-            type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          });
-
-          // Prepare the form data for Cloudinary upload
-          const formData = new FormData();
-          formData.append("file", blob, "uploaded_file.docx");
-          formData.append("upload_preset", "ml_default"); // Replace with your Cloudinary upload preset
-
-          // Upload the file to Cloudinary
-          const response = await axios.post(
-            "https://api.cloudinary.com/v1_1/dipx5fuza/upload",
-            formData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
-
-          if (response.data.secure_url) {
-            setFileUploaded(true);
-            uploadResume(response.data.secure_url);
-          }
-        } catch (error) {
-          console.error("Error uploading file:", error);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    } else {
-      alert("Please upload a valid .docx file");
-    }
-  };
 
   return (
     <>
@@ -100,6 +47,13 @@ function ProfilePage() {
               </span>
             )}
           </div>
+          <FileDropzone
+            onFilesChange={async (files) => {
+              const url = await uploadFile(files[0]);
+              uploadResume(url);
+            }}
+          />
+          {fileUploaded && <div>File uploaded successfully!</div>}
           <div className="grid gap-2">
             <span className="flex items-center text-gray-600 dark:text-gray-400 font-medium">
               <MdOutlineWork className="mr-2 text-pink-500 dark:text-indigo-400" />

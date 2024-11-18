@@ -5,10 +5,10 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader } from "./ui/card.tsx";
 
 import { CSS } from "@dnd-kit/utilities";
-import { JobSummary } from "./JobSummary.tsx";
-import { ScrollArea } from "./ui/scroll-area.tsx";
 import { FaRegPlusSquare } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { JobSummary } from "./JobSummary.tsx";
+import { ScrollArea } from "./ui/scroll-area.tsx";
 
 export interface Column {
   title: string;
@@ -52,7 +52,7 @@ export function StatusColumn({
   };
 
   const variants = cva(
-    "h-[500px] max-h-[500px] w-[250px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
+    "max-h-[580px] w-[270px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
     {
       variants: {
         dragging: {
@@ -75,14 +75,14 @@ export function StatusColumn({
       <CardHeader className="p-4 font-semibold border-b-2 border-orange-200 dark:border-secondary text-left flex flex-row items-center">
         <div className="flex flex-row items-center justify-between w-full">
           <p>{column.title}</p>
-          <Link to={`/dashboard/create?status=${column.title}`}>
+          <Link to={`/dashboard/create?status=${column.id}`}>
             <FaRegPlusSquare className="text-[1.2em] text-orange-600 " />
           </Link>
         </div>
       </CardHeader>
 
       <ScrollArea>
-        <CardContent className="flex flex-grow flex-col  gap-2 p-2">
+        <CardContent className="flex flex-grow flex-col  gap-2 py-2 px-4">
           <SortableContext items={tasksIds}>
             {jobs.map((job) => (
               <JobSummary key={job._id} job={job} />
