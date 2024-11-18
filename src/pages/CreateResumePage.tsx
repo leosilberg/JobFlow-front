@@ -31,6 +31,8 @@ import {
   FaLanguage,
   FaPlus,
   FaTrash,
+  FaGithub,
+  FaLinkedin,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
@@ -46,10 +48,26 @@ import {
   TextRun,
   AlignmentType,
   BorderStyle,
+  ImageRun,
+  Table,
+  WidthType,
+  TableRow,
+  TableCell,
+  HeadingLevel,
+  VerticalAlign,
+  ShadingType,
 } from "docx";
 import { saveAs } from "file-saver";
 import axios from "axios";
 import { useAuthContext } from "@/contexts/AuthContext";
+
+// import githubPic from "../../public/github.png";
+// import linkedinPic from "../../public/linkedin.png";
+
+// const fs = require("fs");
+
+const githubPic =
+  "C:UsersSivanPesahovDesktopProgectsJobFlowJobFlow-frontpubliclinkedin.png";
 
 interface EducationItem {
   degree: string;
@@ -76,6 +94,8 @@ interface UserData {
   name: string;
   phone: string;
   email: string;
+  linkedIn: string;
+  github: string;
   profile: string;
   education: EducationItem[];
   experience: ExperienceItem[];
@@ -93,6 +113,8 @@ const formSchema = z.object({
     .string()
     .min(10, "Phone must be at least 10 digits")
     .max(15, "Phone can't be longer than 15 digits"),
+  linkedIn: z.string().url("LinkedIn must be a valid URL").optional(),
+  github: z.string().url("GitHub must be a valid URL").optional(),
   profile: z
     .string()
     .min(20, "Profile must be at least 20 characters")
@@ -224,6 +246,8 @@ export default function CreateResumePage({}: CreateResumePageProps) {
       name: "",
       phone: "",
       profile: "",
+      linkedIn: "",
+      github: "",
       email: "",
       education: [],
       experience: [],
@@ -290,139 +314,264 @@ export default function CreateResumePage({}: CreateResumePageProps) {
         );
       };
 
+      // Helper function for education list
+      const createEducationList = (education) => {
+        return education.map(
+          (edu) =>
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${edu.startDate.toLocaleDateString()} - ${edu.endDate.toLocaleDateString()}\n`,
+                }),
+                new TextRun({ text: edu.degree + "\n", bold: true }),
+                new TextRun({ text: edu.institution + "\n" }),
+                new TextRun({ text: edu.description + "\n" }),
+              ],
+              spacing: { after: 100 },
+            })
+        );
+      };
+
+      // Helper function for work experience list
+      const createWorkExperienceList = (experience) => {
+        return experience.map(
+          (exp) =>
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${exp.startDate.toLocaleDateString()} - ${exp.endDate.toLocaleDateString()}\n`,
+                }),
+                new TextRun({ text: exp.jobTitle + "\n", bold: true }),
+                new TextRun({ text: exp.company + "\n" }),
+                new TextRun({ text: exp.description + "\n" }),
+              ],
+              spacing: { after: 100 },
+            })
+        );
+      };
+
+      // Helper function for military service list
+      const createMilitaryServiceList = (military) => {
+        return military.map(
+          (service) =>
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${service.startDate.toLocaleDateString()} - ${service.endDate.toLocaleDateString()}\n`,
+                }),
+                new TextRun({ text: service.role + "\n", bold: true }),
+              ],
+              spacing: { after: 200 },
+            })
+        );
+      };
+
+      const createSeparatorLine = (length) => {
+        return new Paragraph({
+          children: [
+            new TextRun({
+              text: "_".repeat(length),
+              color: "808080", // Medium grey color
+            }),
+          ],
+          spacing: { after: 200 },
+        });
+      };
+
       const doc = new Document({
         sections: [
           {
-            properties: {},
+            properties: {
+              page: {
+                margin: {
+                  top: 1000,
+                  right: 1500,
+                  bottom: 1000,
+                  left: 1500,
+                },
+              },
+            },
             children: [
+              // Header - Name with specific spacing
               new Paragraph({
                 children: [
-                  new TextRun({ text: userData.name, bold: true, size: 32 }),
-                  new TextRun({ text: `\n${userData.phone}`, size: 24 }),
-                  new TextRun({ text: `\n${userData.email}`, size: 24 }), // Added email
+                  new TextRun({
+                    text: userData.name.toUpperCase().split("").join(" "),
+                    size: 36,
+                    font: "Arial",
+                  }),
                 ],
                 alignment: AlignmentType.CENTER,
-                spacing: { after: 200 },
+                spacing: { after: 400 },
               }),
-              new Paragraph({
-                text: "PROFILE",
-                spacing: { after: 100 },
-              }),
-              new Paragraph({
-                text: userData.profile,
-                spacing: { after: 200 },
-              }),
-              new Paragraph({
-                border: {
-                  bottom: {
-                    style: BorderStyle.SINGLE,
-                    size: 6,
-                    space: 1,
-                    color: "000000",
-                  },
+
+              // Two-column layout
+              new Table({
+                width: {
+                  size: 100,
+                  type: WidthType.PERCENTAGE,
                 },
-                spacing: { after: 200 },
-              }),
-              new Paragraph({
-                text: "EDUCATION",
-                spacing: { after: 100 },
-              }),
-              ...createList(userData.education, [
-                "degree",
-                "institution",
-                "graduationYear",
-                "description",
-              ]),
-              new Paragraph({
-                border: {
-                  bottom: {
-                    style: BorderStyle.SINGLE,
-                    size: 6,
-                    space: 1,
-                    color: "000000",
-                  },
+                borders: {
+                  top: { style: BorderStyle.NONE },
+                  bottom: { style: BorderStyle.NONE },
+                  left: { style: BorderStyle.NONE },
+                  right: { style: BorderStyle.NONE },
+                  insideHorizontal: { style: BorderStyle.NONE },
+                  insideVertical: { style: BorderStyle.NONE },
                 },
-                spacing: { after: 200 },
-              }),
-              new Paragraph({
-                text: "WORK EXPERIENCE",
-                spacing: { after: 100 },
-              }),
-              ...createList(userData.experience, [
-                "jobTitle",
-                "company",
-                "startYear",
-                "endYear",
-                "description",
-              ]),
-              new Paragraph({
-                border: {
-                  bottom: {
-                    style: BorderStyle.SINGLE,
-                    size: 6,
-                    space: 1,
-                    color: "000000",
-                  },
-                },
-                spacing: { after: 200 },
-              }),
-              new Paragraph({
-                text: "MILITARY SERVICE",
-                spacing: { after: 100 },
-              }),
-              ...createList(userData.military, [
-                "role",
-                "startYear",
-                "endYear",
-              ]),
-              new Paragraph({
-                border: {
-                  bottom: {
-                    style: BorderStyle.SINGLE,
-                    size: 6,
-                    space: 1,
-                    color: "000000",
-                  },
-                },
-                spacing: { after: 200 },
-              }),
-              new Paragraph({
-                text: "SKILLS",
-                spacing: { after: 100 },
-              }),
-              new Paragraph({
-                text: userData.skills,
-                spacing: { after: 200 },
-              }),
-              new Paragraph({
-                border: {
-                  bottom: {
-                    style: BorderStyle.SINGLE,
-                    size: 6,
-                    space: 1,
-                    color: "000000",
-                  },
-                },
-                spacing: { after: 200 },
-              }),
-              new Paragraph({
-                text: "LANGUAGES",
-                spacing: { after: 100 },
-              }),
-              new Paragraph({
-                text: userData.languages,
-                spacing: { after: 200 },
-              }),
-              new Paragraph({
-                border: {
-                  bottom: {
-                    style: BorderStyle.SINGLE,
-                    size: 6,
-                    space: 1,
-                    color: "000000",
-                  },
-                },
-                spacing: { after: 200 },
+                rows: [
+                  new TableRow({
+                    children: [
+                      // Left column (30% width)
+                      new TableCell({
+                        width: {
+                          size: 34, // Slightly reduced from 36 to accommodate gap
+                          type: WidthType.PERCENTAGE,
+                        },
+                        margins: {
+                          right: 400, // Added right margin for gap
+                        },
+                        children: [
+                          // Contact Section
+                          new Paragraph({
+                            children: [
+                              new TextRun({
+                                text: "C O N T A C T",
+                                size: 24,
+                                font: "Arial",
+                              }),
+                            ],
+                            spacing: { after: 100 },
+                          }),
+                          new Paragraph({
+                            children: [
+                              new TextRun({
+                                text: userData.phone + "\n",
+                                size: 20,
+                              }),
+                              new TextRun({
+                                text: userData.email + "\n",
+                                size: 20,
+                              }),
+                              new TextRun({
+                                text: userData.linkedIn + "\n",
+                                size: 20,
+                              }),
+                              new TextRun({ text: userData.github, size: 20 }),
+                            ],
+                            spacing: { after: 100 },
+                          }),
+                          createSeparatorLine(30),
+
+                          // Skills Section
+                          new Paragraph({
+                            children: [
+                              new TextRun({
+                                text: "S K I L L S",
+                                size: 24,
+                                font: "Arial",
+                              }),
+                            ],
+                            spacing: { after: 100 },
+                          }),
+                          new Paragraph({
+                            text: userData.skills,
+                            spacing: { after: 100 },
+                          }),
+                          createSeparatorLine(30),
+
+                          // Education Section
+                          new Paragraph({
+                            children: [
+                              new TextRun({
+                                text: "E D U C A T I O N",
+                                size: 24,
+                                font: "Arial",
+                              }),
+                            ],
+                            spacing: { after: 200 },
+                          }),
+                          ...createEducationList(userData.education),
+                          createSeparatorLine(30),
+
+                          // Languages Section
+                          new Paragraph({
+                            children: [
+                              new TextRun({
+                                text: "L A N G U A G E S",
+                                size: 24,
+                                font: "Arial",
+                              }),
+                            ],
+                            spacing: { after: 200 },
+                          }),
+                          new Paragraph({
+                            text: userData.languages,
+                            spacing: { after: 400 },
+                          }),
+                        ],
+                        verticalAlign: VerticalAlign.TOP,
+                      }),
+
+                      // Right column (70% width)
+                      new TableCell({
+                        width: {
+                          size: 62, // Slightly reduced from 64 to accommodate gap
+                          type: WidthType.PERCENTAGE,
+                        },
+                        margins: {
+                          left: 400, // Added left margin for gap
+                        },
+                        children: [
+                          // Profile Section
+                          new Paragraph({
+                            children: [
+                              new TextRun({
+                                text: "P R O F I L E",
+                                size: 24,
+                                font: "Arial",
+                              }),
+                            ],
+                            spacing: { after: 200 },
+                          }),
+                          new Paragraph({
+                            text: userData.profile,
+                            spacing: { after: 100 },
+                          }),
+                          createSeparatorLine(45),
+
+                          // Work Experience Section
+                          new Paragraph({
+                            children: [
+                              new TextRun({
+                                text: "W O R K   E X P E R I E N C E",
+                                size: 24,
+                                font: "Arial",
+                              }),
+                            ],
+                            spacing: { after: 200 },
+                          }),
+                          ...createWorkExperienceList(userData.experience),
+                          createSeparatorLine(45),
+
+                          // Military Service Section
+                          new Paragraph({
+                            children: [
+                              new TextRun({
+                                text: "M I L I T A R Y   S E R V I C E",
+                                size: 24,
+                                font: "Arial",
+                              }),
+                            ],
+                            spacing: { after: 200 },
+                          }),
+                          ...createMilitaryServiceList(userData.military),
+                        ],
+                        verticalAlign: VerticalAlign.TOP,
+                      }),
+                    ],
+                  }),
+                ],
               }),
             ],
           },
@@ -557,6 +706,47 @@ export default function CreateResumePage({}: CreateResumePageProps) {
                           {...field}
                           placeholder="Enter your phone number"
                           className="w-full p-3 md:p-4 border border-gray-100 dark:border-gray-700 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white focus:ring-4 focus:ring-yellow-300"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="github"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300">
+                        <FaGithub className="mr-2 text-black dark:text-white" />{" "}
+                        GitHub
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter your GitHub profile URL"
+                          className="w-full p-3 md:p-4 border border-gray-100 dark:border-gray-700 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white focus:ring-4 focus:ring-blue-300"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="linkedIn"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center text-lg md:text-xl font-bold text-gray-700 dark:text-gray-300">
+                        <FaLinkedin className="mr-2 text-blue-600 dark:text-blue-300" />{" "}
+                        LinkedIn
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter your LinkedIn profile URL"
+                          className="w-full p-3 md:p-4 border border-gray-100 dark:border-gray-700 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white focus:ring-4 focus:ring-blue-300"
                         />
                       </FormControl>
                       <FormMessage />
