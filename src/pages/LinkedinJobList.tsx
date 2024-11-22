@@ -15,7 +15,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useGetLinkedinJobList } from "@/queries/linkedin.query";
+import { useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 export interface LinkedInJob {
@@ -32,11 +34,17 @@ export interface LinkedInJob {
 export default function LinkedinJobList() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const queryParams = useMemo(() => {
+    return Object.fromEntries(searchParams.entries());
+  }, [searchParams]);
+
+  const debouncedSearchParams = useDebouncedValue(queryParams, 2000);
   const { data: jobs } = useGetLinkedinJobList(
-    searchParams.get("keywords"),
-    searchParams.get("location"),
-    searchParams.get("sortBy")
+    debouncedSearchParams["keywords"],
+    debouncedSearchParams["location"],
+    debouncedSearchParams["sortBy"]
   );
+
   return (
     <>
       <Dialog open onOpenChange={(open) => !open && navigate("..")}>
@@ -75,7 +83,10 @@ export default function LinkedinJobList() {
           <ScrollArea className="h-full w-full px-4 ">
             <div className="grid gap-4">
               {jobs?.map((job, index) => (
-                <Card className="shadow-lg border border-gray-200 rounded-lg dark:bg-gray-700 ">
+                <Card
+                  key={job.id}
+                  className="shadow-lg border border-gray-200 rounded-lg dark:bg-gray-700 "
+                >
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold dark:text-gray-200 text-gray-800">
                       {job.position}
