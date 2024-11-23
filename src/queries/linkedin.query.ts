@@ -14,22 +14,23 @@ export function useGetLinkedinJobDetails(jobId: string) {
     },
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    enabled: !!jobId,
   });
 }
 
 export function useGetLinkedinJobList(
   keywords: string,
   location: string,
-  sortBy: string = "recent"
+  sort_by: string = "recent"
 ) {
   return useQuery({
-    queryKey: ["linkedin", "list", { keywords, location, sortBy }],
+    queryKey: ["linkedin", "list", { keywords, location, sort_by }],
     queryFn: async ({ signal }) => {
       const { data } = await api.get<LinkedInJob[]>(`linkedin/list`, {
         params: {
           keywords,
           location,
-          sortBy,
+          sort_by,
         },
         signal,
       });

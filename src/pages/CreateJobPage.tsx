@@ -53,7 +53,7 @@ const formSchema = z.object({
     .min(2, "Description must be at least 2 characters long"),
   salary: z.number().min(0, "Salary must be a positive number").optional(),
   link: z.string().url("Must be a valid URL"),
-  status: z.string(),
+  status: z.coerce.number(),
   interview_date: z.date().optional(),
 });
 
