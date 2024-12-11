@@ -54,7 +54,10 @@ const formSchema = z.object({
   salary: z.number().min(0, "Salary must be a positive number").optional(),
   link: z.string().url("Must be a valid URL"),
   status: z.coerce.number(),
-  interview_date: z.date().optional(),
+  interview_date: z
+    .date()
+    .optional()
+    .transform((date) => date.toISOString()),
 });
 
 export default function CreateJobPage() {
@@ -73,7 +76,7 @@ export default function CreateJobPage() {
       link: searchParams.get("linkedIn")
         ? `https://www.linkedin.com/jobs/view/${searchParams.get("linkedIn")}`
         : "",
-      status: initialStatus,
+      status: Number(initialStatus),
       interview_date: undefined,
     },
   });
@@ -312,7 +315,7 @@ export default function CreateJobPage() {
                         <FormControl>
                           <Select
                             onValueChange={field.onChange}
-                            value={field.value}
+                            value={`${field.value}`}
                           >
                             <SelectTrigger className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-pink-500 dark:focus:ring-indigo-500 rounded-lg transition-colors duration-200">
                               <SelectValue placeholder="Select a status" />
@@ -331,7 +334,7 @@ export default function CreateJobPage() {
                     )}
                   />
 
-                  {status === "2" && (
+                  {status === 2 && (
                     <FormField
                       control={form.control}
                       name="interview_date"
@@ -365,7 +368,7 @@ export default function CreateJobPage() {
                             >
                               <Calendar
                                 mode="single"
-                                selected={field.value}
+                                selected={new Date(field.value)}
                                 onSelect={(date) => {
                                   if (date) {
                                     field.onChange(date);
@@ -385,8 +388,6 @@ export default function CreateJobPage() {
                     />
                   )}
                 </div>
-
-                {status === "3"}
 
                 <Button
                   type="submit"

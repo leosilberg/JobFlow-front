@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import {
   ClipboardCopyIcon,
   DownloadIcon,
+  Ellipsis,
   Link2Icon,
   Scaling,
 } from "lucide-react";
@@ -135,7 +136,7 @@ export const ImageActions: React.FC<ImageActionsProps> = React.memo(
           <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
             <DropdownMenuTrigger asChild>
               <ActionButton
-                icon={<DotsHorizontalIcon className="size-4" />}
+                icon={<Ellipsis className="size-4" />}
                 tooltip="Open menu"
                 onClick={(e) => e.preventDefault()}
               />

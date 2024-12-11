@@ -6,7 +6,7 @@ export type IJob = {
   company_logo?: string;
   location: string;
   description: string;
-  salary?: string;
+  salary?: number;
   link: string;
   status: number;
   order: number;
