@@ -7,6 +7,7 @@ import ProtectedLayout from "./layouts/ProtectedLayout.tsx";
 import { default as CreateJobPage } from "./pages/CreateJobPage.tsx";
 import CreateResumePage from "./pages/CreateResumePage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
+import ErrorPage from "./pages/ErrorPage";
 import HomePage from "./pages/HomePage.tsx";
 import { JobDetails } from "./pages/JobDetailsPage.tsx";
 import { JobRecommendationsPage } from "./pages/jobRecommendationsPage.tsx";
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <HomePage /> },
       {

@@ -47,7 +47,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.log(`AuthContext: `, error);
       if (isAxiosError(error))
-        throw error.response?.data ? error.response.data : error.message;
+        throw error.response?.data
+          ? error.response.data.message
+          : error.message;
       else throw (error as Error).message;
     }
   }
@@ -59,7 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.log(`AuthContext: `, error);
       if (isAxiosError(error))
-        throw error.response?.data ? error.response.data : error.message;
+        throw error.response?.data
+          ? error.response.data.message
+          : error.message;
       else throw (error as Error).message;
     }
   }
@@ -74,7 +78,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.log(`AuthContext: `, error);
       if (isAxiosError(error))
-        throw error.response?.data ? error.response.data : error.message;
+        throw error.response?.data
+          ? error.response.data.message
+          : error.message;
       else throw (error as Error).message;
     }
   }
