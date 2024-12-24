@@ -56,8 +56,8 @@ const formSchema = z.object({
   status: z.coerce.number(),
   interview_date: z
     .date()
-    .optional()
-    .transform((date) => date.toISOString()),
+    .transform((date) => date.toISOString())
+    .optional(),
 });
 
 export default function CreateJobPage() {
@@ -95,7 +95,6 @@ export default function CreateJobPage() {
   }, [addJob.isSuccess]);
 
   function onSubmit(values: JobValues) {
-    console.log(`CreateJobPage: `, values);
     addJob.mutate(values);
   }
 
@@ -114,7 +113,10 @@ export default function CreateJobPage() {
   }, [linkedinJobDetails]);
 
   function fillDetails() {
-    const jobId = link.replace(/\/$/, "").split("/").pop().split("-").pop();
+    const jobId = link.includes("currentJobId=")
+      ? link.split("currentJobId=")[1]
+      : link.split("?")[0].replace(/\/$/, "").split("/").pop();
+    form.setValue("link", `https://www.linkedin.com/jobs/view/${jobId}`);
     setLinkedinJobId(jobId);
   }
 
@@ -154,7 +156,10 @@ export default function CreateJobPage() {
                       )}
                     />
 
-                    {link.startsWith("https://www.linkedin.com/jobs/view") && (
+                    {(link.startsWith("https://www.linkedin.com/jobs/view") ||
+                      link.startsWith(
+                        "https://www.linkedin.com/jobs/collections/recommended/?currentJobId="
+                      )) && (
                       <Button
                         onClick={(event) => {
                           fillDetails();

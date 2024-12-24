@@ -1,5 +1,9 @@
 import { IJob } from "@/types/job.types.ts";
-import { SortableContext, useSortable } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { cva } from "class-variance-authority";
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader } from "./ui/card.tsx";
@@ -52,7 +56,7 @@ export function StatusColumn({
   };
 
   const variants = cva(
-    "max-h-[580px] w-[270px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
+    "max-h-[580px] bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
     {
       variants: {
         dragging: {
@@ -83,7 +87,10 @@ export function StatusColumn({
 
       <ScrollArea>
         <CardContent className="flex flex-grow flex-col  gap-2 py-2 px-4">
-          <SortableContext items={tasksIds}>
+          <SortableContext
+            items={tasksIds}
+            strategy={verticalListSortingStrategy}
+          >
             {jobs.map((job) => (
               <JobSummary key={job._id} job={job} />
             ))}

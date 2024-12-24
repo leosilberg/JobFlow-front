@@ -5,6 +5,7 @@ import { useGetFilteredJobs } from "@/queries/job.query.ts";
 
 import { IJob } from "@/types/job.types.ts";
 import {
+  closestCenter,
   DndContext,
   DragEndEvent,
   DragOverEvent,
@@ -104,9 +105,11 @@ export default function DashboardPage({}: DashboardPageProps) {
       const overJob = overData.job;
       const overStatus = overJob.status;
       if (activeJob && overJob && activeStatus !== overStatus) {
-        console.log(`DashboardPage: drop on job different status`);
-        return queryClient.setQueryData(["jobs"], (oldjobs: IJob[][]) => {
-          const copy = oldjobs.map((jobs) => jobs && [...jobs]);
+        console.log(
+          `DashboardPage: drop on job different status active: ${activeStatus} over:${overStatus}`
+        );
+        return queryClient.setQueryData(["jobs"], () => {
+          const copy = jobs.map((jobs) => jobs && [...jobs]);
           copy[activeStatus].splice(activeJob.order, 1);
           copy[activeStatus] = copy[activeStatus].map((job, index) => ({
             ...job,
@@ -123,9 +126,9 @@ export default function DashboardPage({}: DashboardPageProps) {
       }
 
       console.log(`DashboardPage: drop on job same status`);
-      return queryClient.setQueryData(["jobs"], (oldjobs: IJob[][]) => {
+      return queryClient.setQueryData(["jobs"], () => {
         const newjobs = arrayMove(
-          oldjobs[activeStatus],
+          jobs[activeStatus],
           activeJob.order,
           overJob.order
         ).map((job, index) => ({
@@ -133,7 +136,7 @@ export default function DashboardPage({}: DashboardPageProps) {
           order: index,
         }));
 
-        return oldjobs.map((jobs, index) =>
+        return jobs.map((jobs, index) =>
           index === activeStatus ? newjobs : jobs && [...jobs]
         );
       });
@@ -146,8 +149,8 @@ export default function DashboardPage({}: DashboardPageProps) {
       console.log(`DashboardPage: drop over column`, overId);
       const overStatus = overId as number;
 
-      return queryClient.setQueryData(["jobs"], (oldjobs: IJob[][]) => {
-        const copy = oldjobs.map((jobs) => jobs && [...jobs]);
+      return queryClient.setQueryData(["jobs"], () => {
+        const copy = jobs.map((jobs) => jobs && [...jobs]);
         copy[activeStatus].splice(activeJob.order, 1);
         copy[activeStatus] = copy[activeStatus].map((job, index) => ({
           ...job,
@@ -176,8 +179,9 @@ export default function DashboardPage({}: DashboardPageProps) {
         onDragStart={onDragStart}
         onDragOver={onDragOver}
         onDragEnd={onDragEnd}
+        collisionDetection={closestCenter}
       >
-        <div className="flex flex-grow gap-6  flex-wrap lg:items-stretch items-center lg:flex-row flex-col justify-center py-6 bg-gradient-to-tr from-orange-100 via-pink-200 to-red-300 dark:bg-gradient-to-tr dark:from-gray-800 dark:via-gray-900 dark:to-black">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 px-6 flex-grow py-6 bg-gradient-to-tr from-orange-100 via-pink-200 to-red-300 dark:bg-gradient-to-tr dark:from-gray-800 dark:via-gray-900 dark:to-black">
           {columns.map((title, index) => (
             <StatusColumn
               key={index}
