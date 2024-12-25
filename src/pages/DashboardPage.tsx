@@ -73,10 +73,13 @@ export default function DashboardPage({}: DashboardPageProps) {
 
     if (activeStatus !== prevStatus) {
       console.log(`DashboardPage: not same status,updating`);
-      update.mutate(jobs[activeStatus].concat(jobs[prevStatus]));
+      update.mutate({
+        jobs: jobs[activeStatus].concat(jobs[prevStatus]),
+        jobId: activeData.job._id,
+      });
     } else if (activeOrder != prevOrder) {
       console.log(`DashboardPage: not same order,updating`);
-      update.mutate(jobs[activeStatus]);
+      update.mutate({ jobs: jobs[activeStatus], jobId: activeData.job._id });
     }
   }
 
@@ -146,8 +149,15 @@ export default function DashboardPage({}: DashboardPageProps) {
 
     // Im dropping a Task over a column
     if (isActiveAJob && isOverAColumn) {
-      console.log(`DashboardPage: drop over column`, overId);
+      console.log(
+        `DashboardPage: drop over column ${overId} current: ${activeStatus}`
+      );
       const overStatus = overId as number;
+
+      if (overStatus === activeStatus) {
+        console.log(`DashboardPage: same column error`);
+        return;
+      }
 
       return queryClient.setQueryData(["jobs"], () => {
         const copy = jobs.map((jobs) => jobs && [...jobs]);

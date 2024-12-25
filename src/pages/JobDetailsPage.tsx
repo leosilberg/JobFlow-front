@@ -108,8 +108,10 @@ export const JobDetails = () => {
     queryClient.setQueryData(["job", { jobId: job._id }], (old: IJob) => {
       return { ...old, status: newStatus };
     });
-    await update.mutateAsync(copy[newStatus].concat(copy[prevStatus]));
-    queryClient.invalidateQueries({ queryKey: ["job", { jobId: job._id }] });
+    await update.mutateAsync({
+      jobs: copy[newStatus].concat(copy[prevStatus]),
+      jobId: job._id,
+    });
   }
 
   const createAIResume = useCreateAIResume();
@@ -307,7 +309,7 @@ export const JobDetails = () => {
                   </Popover>
                 </div>
               )}
-              {job?.status === 3 && (
+              {/* {job?.status === 3 && (
                 <div className="flex flex-col gap-2">
                   <strong>Contract Link:</strong>
                   <a
@@ -319,7 +321,7 @@ export const JobDetails = () => {
                     {job?.contract_link}
                   </a>
                 </div>
-              )}
+              )} */}
             </div>
           </ScrollArea>
           <DialogFooter className="sm:justify-between items-center flex-row ">

@@ -122,65 +122,27 @@ export default function CreateJobPage() {
 
   return (
     <Dialog open onOpenChange={(open) => !open && navigate("..")}>
-      <DialogContent className="lg:max-w-2xl lg:w-full h-[80vh] p-6 bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl overflow-hidden transition-colors duration-300 ease-in-out">
+      <DialogContent className="lg:max-w-2xl  h-[80vh] p-6 bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl overflow-hidden transition-colors duration-300 ease-in-out">
         <DialogHeader>
           <DialogTitle className="text-gray-800 flex items-center gap-3 dark:text-gray-100">
             Create Job <MdWorkOutline className="text-orange-600" />
           </DialogTitle>
         </DialogHeader>
-        <div className="flex items-center justify-center overflow-hidden px-8">
-          <ScrollArea className="h-full w-full p-4">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="grid gap-4"
-              >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <div className="col-span-2 flex gap-4 justify-between items-end">
-                    <FormField
-                      control={form.control}
-                      name="link"
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormLabel className="text-gray-700 dark:text-gray-300">
-                            Link
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {(link.startsWith("https://www.linkedin.com/jobs/view") ||
-                      link.startsWith(
-                        "https://www.linkedin.com/jobs/collections/recommended/?currentJobId="
-                      )) && (
-                      <Button
-                        onClick={(event) => {
-                          fillDetails();
-                          event.preventDefault();
-                        }}
-                        className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
-                      >
-                        {linkedinJobDetailsLoading
-                          ? "Loading..."
-                          : "Fill Details"}
-                      </Button>
-                    )}
-                  </div>
-
+        <ScrollArea className="h-full p-4">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col gap-4"
+            >
+              <div className="grid lg:grid-cols-2 gap-4">
+                <div className="lg:col-span-2 flex gap-4 justify-between items-end">
                   <FormField
                     control={form.control}
-                    name="position"
+                    name="link"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex-1">
                         <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Position
+                          Link
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -193,223 +155,256 @@ export default function CreateJobPage() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Location
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="company"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Company
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="company_logo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Company Logo Link
-                        </FormLabel>
-                        <FormControl>
-                          <div className="flex gap-2 items-center">
-                            {company_logo && (
-                              <img
-                                src={company_logo}
-                                className="h-10 w-10 rounded-md"
-                              />
-                            )}
-                            <Input
-                              {...field}
-                              className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem className="col-span-2">
-                        <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Description
-                        </FormLabel>
-                        <FormControl>
-                          <MinimalTiptapEditor
-                            {...field}
-                            className="w-full bg-background"
-                            editorContentClassName="p-5"
-                            output="html"
-                            placeholder="Type your description here..."
-                            autofocus={false}
-                            editable={true}
-                            editorClassName="focus:outline-none"
-                            throttleDelay={0}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Salary Field */}
-                  <FormField
-                    control={form.control}
-                    name="salary"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Salary
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Status Field */}
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">
-                          Status
-                        </FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={`${field.value}`}
-                          >
-                            <SelectTrigger className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-pink-500 dark:focus:ring-indigo-500 rounded-lg transition-colors duration-200">
-                              <SelectValue placeholder="Select a status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="0">Wishlist</SelectItem>
-                              <SelectItem value="1">Applied</SelectItem>
-                              <SelectItem value="2">Interview</SelectItem>
-                              <SelectItem value="3">Offer</SelectItem>
-                              <SelectItem value="4">Rejected</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {status === 2 && (
-                    <FormField
-                      control={form.control}
-                      name="interview_date"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-700 mt-[0.1em]  dark:text-gray-300">
-                            Interview Date
-                          </FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant={"outline"}
-                                  className={cn(
-                                    "w-full pl-3 mt-0 text-left font-normal",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value ? (
-                                    format(field.value, "PPP")
-                                  ) : (
-                                    <span>Pick a date</span>
-                                  )}
-                                  <CalendarIcon className="ml-auto opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto p-0"
-                              align="start"
-                            >
-                              <Calendar
-                                mode="single"
-                                selected={new Date(field.value)}
-                                onSelect={(date) => {
-                                  if (date) {
-                                    field.onChange(date);
-                                  }
-                                }}
-                                disabled={(date) =>
-                                  date < new Date() &&
-                                  date.getTime() < new Date().getTime()
-                                }
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  {(link.startsWith("https://www.linkedin.com/jobs/view") ||
+                    link.startsWith(
+                      "https://www.linkedin.com/jobs/collections/recommended/?currentJobId="
+                    )) && (
+                    <Button
+                      onClick={(event) => {
+                        fillDetails();
+                        event.preventDefault();
+                      }}
+                      className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                    >
+                      {linkedinJobDetailsLoading
+                        ? "Loading..."
+                        : "Fill Details"}
+                    </Button>
                   )}
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
-                >
-                  Submit
-                </Button>
+                <FormField
+                  control={form.control}
+                  name="position"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">
+                        Position
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                {form.formState.errors.root && (
-                  <div className="text-red-600">
-                    {form.formState.errors.root.message}
-                  </div>
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">
+                        Location
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="company"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">
+                        Company
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="company_logo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">
+                        Company Logo Link
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2 items-center">
+                          {company_logo && (
+                            <img
+                              src={company_logo}
+                              className="h-10 w-10 rounded-md"
+                            />
+                          )}
+                          <Input
+                            {...field}
+                            className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="lg:col-span-2">
+                      <FormLabel className="text-gray-700 dark:text-gray-300">
+                        Description
+                      </FormLabel>
+                      <FormControl>
+                        <MinimalTiptapEditor
+                          {...field}
+                          className="bg-background"
+                          editorContentClassName="p-5"
+                          output="html"
+                          placeholder="Type your description here..."
+                          autofocus={false}
+                          editable={true}
+                          editorClassName="focus:outline-none"
+                          throttleDelay={0}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Salary Field */}
+                <FormField
+                  control={form.control}
+                  name="salary"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">
+                        Salary
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          {...field}
+                          className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:border-2 focus:border-pink-500 dark:focus:border-indigo-500 focus-visible:ring-0 rounded-lg transition-colors duration-200"
+                          onChange={(e) =>
+                            field.onChange(parseFloat(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Status Field */}
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">
+                        Status
+                      </FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={`${field.value}`}
+                        >
+                          <SelectTrigger className="border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-pink-500 dark:focus:ring-indigo-500 rounded-lg transition-colors duration-200">
+                            <SelectValue placeholder="Select a status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="0">Wishlist</SelectItem>
+                            <SelectItem value="1">Applied</SelectItem>
+                            <SelectItem value="2">Interview</SelectItem>
+                            <SelectItem value="3">Offer</SelectItem>
+                            <SelectItem value="4">Rejected</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {status === 2 && (
+                  <FormField
+                    control={form.control}
+                    name="interview_date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 mt-[0.1em]  dark:text-gray-300">
+                          Interview Date
+                        </FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 mt-0 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={new Date(field.value)}
+                              onSelect={(date) => {
+                                if (date) {
+                                  field.onChange(date);
+                                }
+                              }}
+                              disabled={(date) =>
+                                date < new Date() &&
+                                date.getTime() < new Date().getTime()
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
-              </form>
-            </Form>
-          </ScrollArea>
-        </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+              >
+                Submit
+              </Button>
+
+              {form.formState.errors.root && (
+                <div className="text-red-600">
+                  {form.formState.errors.root.message}
+                </div>
+              )}
+            </form>
+          </Form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
