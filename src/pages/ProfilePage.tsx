@@ -3,7 +3,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { uploadFile } from "@/lib/cloudinary";
 import { useState } from "react";
 import { FiFileText, FiMail } from "react-icons/fi";
-import { MdOutlineWork, MdPerson } from "react-icons/md";
+import { MdPerson } from "react-icons/md";
 
 function ProfilePage() {
   const { user, uploadResume } = useAuthContext();
@@ -54,17 +54,6 @@ function ProfilePage() {
             }}
           />
           {fileUploaded && <div>File uploaded successfully!</div>}
-          <div className="grid gap-2">
-            <span className="flex items-center text-gray-600 dark:text-gray-400 font-medium">
-              <MdOutlineWork className="mr-2 text-pink-500 dark:text-indigo-400" />
-              Jobs Applied:
-            </span>
-            <ul className="list-disc list-inside text-gray-800 dark:text-gray-200">
-              <li className="text-gray-600 dark:text-gray-400">
-                No jobs applied yet
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
     </>

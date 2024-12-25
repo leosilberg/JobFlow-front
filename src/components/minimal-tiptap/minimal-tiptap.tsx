@@ -2,6 +2,7 @@ import * as React from "react";
 import "./styles/index.css";
 
 import { Separator } from "@/components/ui/separator";
+import useMediaQuery from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import type { Content, Editor } from "@tiptap/react";
 import { EditorContent } from "@tiptap/react";
@@ -23,49 +24,53 @@ export interface MinimalTiptapProps
   editorContentClassName?: string;
 }
 
-const Toolbar = ({ editor }: { editor: Editor }) => (
-  <div className="shrink-0 overflow-x-auto border-b border-border p-2">
-    <div className="flex w-max items-center gap-px">
-      <SectionOne editor={editor} activeLevels={[1, 2, 3, 4, 5, 6]} />
+const Toolbar = ({ editor }: { editor: Editor }) => {
+  const isDesktop = useMediaQuery(1024);
 
-      <Separator orientation="vertical" className="mx-2 h-7" />
+  return (
+    <div className="shrink-0 overflow-x-auto border-b border-border p-2">
+      <div className="flex w-max items-center gap-px">
+        <SectionOne editor={editor} activeLevels={[1, 2, 3, 4, 5, 6]} />
 
-      <SectionTwo
-        editor={editor}
-        activeActions={[
-          "bold",
-          "italic",
-          "underline",
-          "strikethrough",
-          // "code",
-          "clearFormatting",
-        ]}
-        mainActionCount={5}
-      />
+        <Separator orientation="vertical" className="mx-2 h-7" />
 
-      <Separator orientation="vertical" className="mx-2 h-7" />
+        <SectionTwo
+          editor={editor}
+          activeActions={[
+            "bold",
+            "italic",
+            "underline",
+            "strikethrough",
+            // "code",
+            "clearFormatting",
+          ]}
+          mainActionCount={isDesktop ? 5 : 0}
+        />
 
-      <SectionThree editor={editor} />
+        <Separator orientation="vertical" className="mx-2 h-7" />
 
-      <Separator orientation="vertical" className="mx-2 h-7" />
+        <SectionThree editor={editor} />
 
-      <SectionFour
-        editor={editor}
-        activeActions={["orderedList", "bulletList"]}
-        mainActionCount={2}
-      />
+        <Separator orientation="vertical" className="mx-2 h-7" />
 
-      <Separator orientation="vertical" className="mx-2 h-7" />
+        <SectionFour
+          editor={editor}
+          activeActions={["orderedList", "bulletList"]}
+          mainActionCount={isDesktop ? 2 : 0}
+        />
 
-      <SectionFive
-        editor={editor}
-        // activeActions={["codeBlock", "blockquote", "horizontalRule"]}
-        activeActions={[]}
-        mainActionCount={0}
-      />
+        <Separator orientation="vertical" className="mx-2 h-7" />
+
+        <SectionFive
+          editor={editor}
+          // activeActions={["codeBlock", "blockquote", "horizontalRule"]}
+          activeActions={[]}
+          mainActionCount={0}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const MinimalTiptapEditor = React.forwardRef<
   HTMLDivElement,
