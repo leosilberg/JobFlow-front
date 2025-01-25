@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 export function useCreateAIResume() {
   return useMutation({
     mutationFn: async (description: string) => {
-      const { data: blob } = await api.post(
+      const blob = await api.post(
         "openai/matcher",
         {
           description,
@@ -13,7 +13,7 @@ export function useCreateAIResume() {
           responseType: "blob",
         }
       );
-      return blob;
+      return blob as any;
     },
   });
 }

@@ -53,7 +53,7 @@ export default function LinkedinJobList() {
   }, [searchParams, location]);
 
   const debouncedSearchParams = useDebouncedValue(queryParams, 500);
-  const { data: jobs } = useGetLinkedinJobList(
+  const { data: jobs, error } = useGetLinkedinJobList(
     debouncedSearchParams["keywords"],
     debouncedSearchParams["location"],
     debouncedSearchParams["date_since_posted"],
@@ -117,7 +117,11 @@ export default function LinkedinJobList() {
             </Select>
           </div>
         </div>
-
+        {error && (
+          <div className="flex justify-center">
+            No results found for this search. Please try again
+          </div>
+        )}
         <ScrollArea className="h-full w-full px-4">
           <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
             {jobs?.map((job, index) => (
