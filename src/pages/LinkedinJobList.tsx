@@ -1,59 +1,77 @@
+import LinkedInCard from "@/components/LinkedInCard";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useGetFilteredJobs } from "@/queries/job.query";
 import { useGetLinkedinJobList } from "@/queries/linkedin.query";
-import { useMemo } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
-export interface LinkedInJob {
+export type LinkedInJob = {
   id: string;
+  link: string;
   position: string;
   company: string;
+  companyLink: string;
+  companyLogo: string;
   location: string;
-  date: string;
-  job_url: string;
-  company_logo: string;
-  ago_time: string;
-}
+  date?: string;
+  agoTime: string;
+  applicants?: string;
+  level?: string;
+  type?: string;
+  description?: string;
+  applyLink?: string;
+};
 
 export default function LinkedinJobList() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const queryParams = useMemo(() => {
-    return Object.fromEntries(searchParams.entries());
-  }, [searchParams]);
+  const location = useLocation();
+  const [queryParams, setQueryParams] = useState(() =>
+    Object.fromEntries(searchParams.entries())
+  );
 
-  const debouncedSearchParams = useDebouncedValue(queryParams, 2000);
+  useEffect(() => {
+    if (!location.pathname.includes("/create")) {
+      setQueryParams(Object.fromEntries(searchParams.entries()));
+    }
+  }, [searchParams, location]);
+
+  const debouncedSearchParams = useDebouncedValue(queryParams, 500);
   const { data: jobs } = useGetLinkedinJobList(
     debouncedSearchParams["keywords"],
     debouncedSearchParams["location"],
-    debouncedSearchParams["sortBy"]
+    debouncedSearchParams["date_since_posted"],
+    debouncedSearchParams["start"]
   );
+
+  const { data: savedJobs = [] } = useGetFilteredJobs("");
+  const savedLinks = useMemo(() => {
+    return savedJobs.flatMap((jobs) => jobs.map((job) => job.link));
+  }, [savedJobs]);
 
   return (
     <>
-      <Dialog open onOpenChange={(open) => !open && navigate("..")}>
-        <DialogContent className="content-start lg:max-w-2xl lg:w-full h-[80vh] p-6 bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl overflow-hidden transition-colors duration-300 ease-in-out">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
-              Search LinkedIn Jobs
-            </DialogTitle>
-          </DialogHeader>
+      <div className="grid gap-4 flex-1 items-start p-6 bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black  overflow-hidden transition-colors duration-300 ease-in-out">
+        <div className="flex justify-between flex-wrap gap-4">
+          <div>
+            <p className="text-2xl font-bold">Search LinkedIn Jobs</p>
+          </div>
 
           <div className="flex gap-4">
             <Input
@@ -78,61 +96,75 @@ export default function LinkedinJobList() {
               }
               className="mb-4 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
             />
+            <Select
+              value={searchParams.get("date_since_posted") || "week"}
+              onValueChange={(value) => {
+                setSearchParams((prev) => {
+                  prev.set("date_since_posted", value);
+                  prev.set("start", "0");
+                  return prev;
+                });
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Date Posted" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">Past Day</SelectItem>
+                <SelectItem value="week">Past Week</SelectItem>
+                <SelectItem value="month">Past Month</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+        </div>
 
-          <ScrollArea className="h-full w-full px-4 ">
-            <div className="grid gap-4">
-              {jobs?.map((job, index) => (
-                <Card
-                  key={job.id}
-                  className="shadow-lg border border-gray-200 rounded-lg dark:bg-gray-700 "
+        <ScrollArea className="h-full w-full px-4">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
+            {jobs?.map((job, index) => (
+              <LinkedInCard key={job.id} job={job} savedLinks={savedLinks} />
+            ))}
+          </div>
+          {jobs && (
+            <>
+              <Separator orientation="vertical" className="h-4" />
+              <div className="flex justify-between">
+                <Button
+                  className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                  onClick={() => {
+                    setSearchParams((prev) => {
+                      const prevStart = parseInt(prev.get("start")) - 10;
+                      prev.set("start", `${prevStart < 0 ? 0 : prevStart}`);
+                      return prev;
+                    });
+                  }}
+                  disabled={
+                    searchParams.get("start")
+                      ? searchParams.get("start") === "0"
+                      : true
+                  }
                 >
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold dark:text-gray-200 text-gray-800">
-                      {job.position}
-                    </CardTitle>
-                    <CardDescription>{job.location}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-4">
-                      <div className="flex flex-row items-center justify-start gap-2">
-                        {job.company_logo && (
-                          <img
-                            src={job.company_logo}
-                            className="w-12 h-12 rounded-sm"
-                          />
-                        )}
-                        <p>{job.company}</p>
-                      </div>
-                      <p>Posted {job.ago_time}</p>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="justify-end">
-                    <div className="flex gap-4">
-                      <Link
-                        to={`https://www.linkedin.com/jobs/view/${job.id}`}
-                        target="_blank"
-                      >
-                        <Button
-                          className="border-pink-500 dark:indigo-600 hover:bg-clip-text hover:text-transparent hover:bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600"
-                          variant={"outline"}
-                        >
-                          View Job
-                        </Button>
-                      </Link>
-                      <Link to={`/dashboard/create?linkedIn=${job.id}`}>
-                        <Button className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out">
-                          Add Job
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
+                  Previous
+                </Button>
+
+                <Button
+                  className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
+                  onClick={() => {
+                    setSearchParams((prev) => {
+                      const nextStart =
+                        parseInt(prev.get("start") ?? "0") + jobs.length;
+                      prev.set("start", `${nextStart}`);
+                      return prev;
+                    });
+                  }}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+        </ScrollArea>
+      </div>
+      <Outlet />
     </>
   );
 }

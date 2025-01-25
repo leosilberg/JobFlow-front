@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 export default function useMediaQuery(width) {
-  const [targetReached, setTargetReached] = useState(false);
+  const [targetReached, setTargetReached] = useState(true);
 
   const updateTarget = useCallback((e) => {
     setTargetReached(e.matches);
@@ -12,7 +12,7 @@ export default function useMediaQuery(width) {
     media.addEventListener("change", updateTarget);
 
     // Check on mount (callback is not called until a change occurs)
-    if (media.matches) setTargetReached(true);
+    if (!media.matches) setTargetReached(false);
 
     return () => media.removeEventListener("change", updateTarget);
   }, []);

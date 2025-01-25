@@ -44,6 +44,16 @@ const router = createBrowserRouter([
             ],
           },
           {
+            path: "linkedin",
+            element: <LinkedinJobList />,
+            children: [
+              {
+                path: "create",
+                element: <CreateJobPage />,
+              },
+            ],
+          },
+          {
             path: "create-resume",
             element: <CreateResumePage />,
           },
@@ -51,12 +61,7 @@ const router = createBrowserRouter([
           {
             path: "job-recommendations",
             element: <JobRecommendationsPage />,
-            children: [
-              {
-                path: "linkedin",
-                element: <LinkedinJobList />,
-              },
-            ],
+            children: [],
           },
         ],
       },

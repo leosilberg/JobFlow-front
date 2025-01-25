@@ -34,10 +34,11 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { MdWorkOutline } from "react-icons/md";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ScrollArea } from "../components/ui/scroll-area";
 
 import MinimalTiptapEditor from "@/components/minimal-tiptap/minimal-tiptap";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useGetLinkedinJobDetails } from "@/queries/linkedin.query";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -61,6 +62,7 @@ const formSchema = z.object({
 });
 
 export default function CreateJobPage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialStatus = searchParams.get("status") || "0";
@@ -73,8 +75,10 @@ export default function CreateJobPage() {
       location: "",
       description: "",
       salary: undefined,
-      link: searchParams.get("linkedIn")
-        ? `https://www.linkedin.com/jobs/view/${searchParams.get("linkedIn")}`
+      link: new URLSearchParams(window.location.search).has("linkedIn")
+        ? `https://www.linkedin.com/jobs/view/${new URLSearchParams(
+            window.location.search
+          ).get("linkedIn")}`
         : "",
       status: Number(initialStatus),
       interview_date: undefined,
@@ -91,7 +95,13 @@ export default function CreateJobPage() {
   const addJob = useAddJob();
 
   useEffect(() => {
-    addJob.isSuccess && navigate("/dashboard");
+    if (addJob.isSuccess) {
+      if (location.pathname.includes("/linkedin")) {
+        navigate(-1);
+      } else {
+        navigate("..");
+      }
+    }
   }, [addJob.isSuccess]);
 
   function onSubmit(values: JobValues) {
@@ -104,24 +114,45 @@ export default function CreateJobPage() {
 
   useEffect(() => {
     if (linkedinJobDetails) {
-      form.setValue("position", linkedinJobDetails["position"]);
-      form.setValue("company", linkedinJobDetails["company"]);
-      form.setValue("company_logo", linkedinJobDetails["company_logo"]);
-      form.setValue("location", linkedinJobDetails["location"]);
-      form.setValue("description", linkedinJobDetails["description"]);
+      form.setValue("position", linkedinJobDetails.position);
+      form.setValue("company", linkedinJobDetails.company);
+      form.setValue("company_logo", linkedinJobDetails.companyLogo);
+      form.setValue("location", linkedinJobDetails.location);
+      form.setValue(
+        "description",
+        linkedinJobDetails.description.replace(/\n/g, "<br/>")
+      );
     }
   }, [linkedinJobDetails]);
 
-  function fillDetails() {
-    const jobId = link.includes("currentJobId=")
-      ? link.split("currentJobId=")[1]
-      : link.split("?")[0].replace(/\/$/, "").split("/").pop();
-    form.setValue("link", `https://www.linkedin.com/jobs/view/${jobId}`);
+  const debouncedLink = useDebouncedValue(link, 300);
+  useEffect(() => {
+    let jobId = "";
+    if (debouncedLink?.includes("linkedin.com")) {
+      const segments = debouncedLink.includes("currentJobId=")
+        ? debouncedLink.split("currentJobId=")
+        : debouncedLink.split("?")[0].replace(/\/$/, "").split("view/");
+      if (segments.length == 2 && segments[1].length === 10) {
+        jobId = segments[1];
+        form.setValue("link", `https://www.linkedin.com/jobs/view/${jobId}`);
+      }
+    }
     setLinkedinJobId(jobId);
-  }
+  }, [debouncedLink]);
 
   return (
-    <Dialog open onOpenChange={(open) => !open && navigate("..")}>
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) {
+          if (location.pathname.includes("/linkedin")) {
+            navigate(-1);
+          } else {
+            navigate("..");
+          }
+        }
+      }}
+    >
       <DialogContent className="lg:max-w-2xl  h-[80vh] p-6 bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl overflow-hidden transition-colors duration-300 ease-in-out">
         <DialogHeader>
           <DialogTitle className="text-gray-800 flex items-center gap-3 dark:text-gray-100">
@@ -154,23 +185,6 @@ export default function CreateJobPage() {
                       </FormItem>
                     )}
                   />
-
-                  {(link.startsWith("https://www.linkedin.com/jobs/view") ||
-                    link.startsWith(
-                      "https://www.linkedin.com/jobs/collections/recommended/?currentJobId="
-                    )) && (
-                    <Button
-                      onClick={(event) => {
-                        fillDetails();
-                        event.preventDefault();
-                      }}
-                      className="bg-gradient-to-r from-pink-500 to-orange-500 dark:from-indigo-600 dark:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out"
-                    >
-                      {linkedinJobDetailsLoading
-                        ? "Loading..."
-                        : "Fill Details"}
-                    </Button>
-                  )}
                 </div>
 
                 <FormField

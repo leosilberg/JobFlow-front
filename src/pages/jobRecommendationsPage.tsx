@@ -54,7 +54,7 @@ export const JobRecommendationsPage = () => {
             </CardHeader>
             <CardContent></CardContent>
             <CardFooter>
-              <Link to={`./linkedin?keywords=${job.title}`}>
+              <Link to={`/linkedin?keywords=${job.title}`}>
                 <Button variant="outline">
                   Show result on LinkedIn{" "}
                   <FaLinkedin className="text-blue-700" />

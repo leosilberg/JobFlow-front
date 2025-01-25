@@ -1,7 +1,8 @@
 import { useAuthContext } from "@/contexts/AuthContext.jsx";
 import { cn } from "@/lib/utils.js";
 import { ReactNode, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { FaBars, FaTimes } from "react-icons/fa";
+import { NavLink, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle.tsx";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar.tsx";
 import {
@@ -10,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu.tsx";
-import { FaBars, FaTimes } from "react-icons/fa";
 
 type TextNavLinkProps = {
   to: string;
@@ -70,6 +70,7 @@ export default function Navbar() {
             <TextNavLink to="/dashboard">Dashboard</TextNavLink>
             <TextNavLink to="/dashboard/create">Create Job</TextNavLink>
             <TextNavLink to="/create-resume">Create Resume</TextNavLink>
+            <TextNavLink to="/linkedin">LinkedIn Jobs</TextNavLink>
             <TextNavLink to="/job-recommendations">
               Job Recommendations
             </TextNavLink>
@@ -152,15 +153,15 @@ export default function Navbar() {
             >
               Create Resume
             </TextNavLink>
-            {user && (
-              <TextNavLink
-                to="/dashboard"
-                onClick={closeMenu}
-                className="text-gray-800 dark:text-gray-300 hover:text-blue-600 text-lg"
-              >
-                Job Tracker
-              </TextNavLink>
-            )}
+
+            <TextNavLink
+              to="/linkedin"
+              onClick={closeMenu}
+              className="text-gray-800 dark:text-gray-300 hover:text-blue-600 text-lg"
+            >
+              LinkedIn Jobs
+            </TextNavLink>
+
             {user ? (
               <>
                 <TextNavLink
