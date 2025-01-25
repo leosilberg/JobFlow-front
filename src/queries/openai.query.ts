@@ -6,12 +6,9 @@ export function useGetJobRecommendations() {
   return useQuery({
     queryKey: ["job-recomendation"],
     queryFn: async ({ signal }) => {
-      const { data } = await api.get<RecommendedJob[]>(
-        "openai/job-recomendation",
-        {
-          signal: signal,
-        }
-      );
+      const { data } = await api.get<RecommendedJob[]>("openai/recommend", {
+        signal: signal,
+      });
       return data;
     },
     refetchOnWindowFocus: false,

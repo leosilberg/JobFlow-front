@@ -93,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(user);
       } catch (error) {
         console.log(`AuthContext: `, error);
+        setToken(null);
       }
     }
 

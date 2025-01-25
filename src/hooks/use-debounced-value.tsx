@@ -5,7 +5,6 @@ export function useDebouncedValue<T>(value: T, delay = 500) {
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      console.log(`use-debounced-value: `, value);
       setDebouncedValue(value);
     }, delay);
 

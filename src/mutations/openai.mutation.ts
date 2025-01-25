@@ -5,7 +5,7 @@ export function useCreateAIResume() {
   return useMutation({
     mutationFn: async (description: string) => {
       const { data: blob } = await api.post(
-        "openai/job-matcher",
+        "openai/matcher",
         {
           description,
         },

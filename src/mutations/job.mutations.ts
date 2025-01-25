@@ -17,8 +17,8 @@ export function useAddJob() {
 
 export function useUpdateJob() {
   const queryClient = useQueryClient();
-  return useMutation<string,Error,{jobs:IJob[],jobId:string}>({
-    mutationFn: async ({jobs,jobId}) => {
+  return useMutation<string, Error, { jobs: IJob[]; jobId: string }>({
+    mutationFn: async ({ jobs, jobId }) => {
       const { data } = await api.patch<string>("job/order", {
         jobs: jobs.map((job) => ({
           _id: job._id,
@@ -27,8 +27,7 @@ export function useUpdateJob() {
       });
       return data;
     },
-    onSettled: (result,error,{jobId}) => {
-      console.log(`job.mutations: `,jobId);
+    onSettled: (result, error, { jobId }) => {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       queryClient.invalidateQueries({ queryKey: ["job", { jobId }] });
     },
