@@ -1,22 +1,3 @@
-import React, { useState } from "react";
-import videoBg from "../imgs/lampgreenbg.mp4";
-import { FaArrowRight } from "react-icons/fa";
-import { motion } from "framer-motion";
-import {
-  FaFileAlt,
-  FaRocket,
-  FaPenFancy,
-  FaBriefcase,
-  FaEnvelope,
-  FaPlus,
-  FaMinus,
-  FaQuestionCircle,
-} from "react-icons/fa";
-import svg1 from "../imgs/svg1.svg";
-import svg2 from "../imgs/svg2.svg";
-import { Link } from "react-router-dom";
-import { MdArrowOutward } from "react-icons/md";
-import people from "../imgs/bgjoin3.jpg";
 import {
   Carousel,
   CarouselContent,
@@ -25,6 +6,25 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { motion } from "framer-motion";
+import React, { useState } from "react";
+import {
+  FaArrowRight,
+  FaBriefcase,
+  FaEnvelope,
+  FaFileAlt,
+  FaMinus,
+  FaPenFancy,
+  FaPlus,
+  FaQuestionCircle,
+  FaRocket,
+} from "react-icons/fa";
+import { MdArrowOutward } from "react-icons/md";
+import { Link } from "react-router-dom";
+import people from "../imgs/bgjoin3.jpg";
+import videoBg from "../imgs/lampgreenbg.mp4";
+import svg1 from "../imgs/svg1.svg";
+import svg2 from "../imgs/svg2.svg";
 
 const HomePage: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -77,35 +77,35 @@ const HomePage: React.FC = () => {
 
   const faqData = [
     {
-      question: "What does JobFlow offer?",
+      question: "What does Rolio offer?",
       answer:
-        "JobFlow gives you tools to make resumes, cover letters, personal websites, and email signatures. It's made to help job seekers show their best selves.",
+        "Rolio gives you tools to make resumes, cover letters, personal websites, and email signatures. It's made to help job seekers show their best selves.",
     },
     {
-      question: "Can I use JobFlow for free?",
+      question: "Can I use Rolio for free?",
       answer:
-        "Yes, you can start using JobFlow for free. There are also paid options with more features if you need them.",
+        "Yes, you can start using Rolio for free. There are also paid options with more features if you need them.",
     },
     {
-      question: "How is JobFlow different from other resume builders?",
+      question: "How is Rolio different from other resume builders?",
       answer:
-        "JobFlow has special tools powered by AI, and you have a lot of flexibility to customize the templates to fit what you need.",
+        "Rolio has special tools powered by AI, and you have a lot of flexibility to customize the templates to fit what you need.",
     },
     {
-      question: "Can I also create cover letters with JobFlow?",
+      question: "Can I also create cover letters with Rolio?",
       answer:
-        "Yes, you can make cover letters that match your resume using JobFlow.",
+        "Yes, you can make cover letters that match your resume using Rolio.",
     },
     {
-      question: "How can I give feedback to JobFlow?",
+      question: "How can I give feedback to Rolio?",
       answer:
-        "You can write your feedback on the JobFlow website in a special section for comments in the footer.",
+        "You can write your feedback on the Rolio website in a special section for comments in the footer.",
     },
   ];
 
   const testimonials = [
     {
-      text: "JobFlow helped me land my dream job in no time!",
+      text: "Rolio helped me land my dream job in no time!",
       name: "- Jane Doe",
     },
     {
@@ -117,7 +117,7 @@ const HomePage: React.FC = () => {
       name: "- Sarah Lee",
     },
     {
-      text: "JobFlow helped me land my dream job in no time!",
+      text: "Rolio helped me land my dream job in no time!",
       name: "- Jane Doe",
     },
     {
@@ -185,7 +185,7 @@ const HomePage: React.FC = () => {
             <h2 className="text-2xl font-semibold py-[0.8em] text-orange-100 ">
               Why Choose{" "}
               <span className="text-orange-800 font-bold tracking-wide">
-                JobFlow?
+                Rolio?
               </span>
             </h2>
             <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -274,14 +274,14 @@ const HomePage: React.FC = () => {
         </h3>
         <p className="mt-10 text-lg leading-[22px] lg:text-gray-600 lg:mt-5 text-gray-800 lg:w-[595px]">
           Empower your career growth and success today and join 1.4 million
-          users in transforming your professional path with JobFlow.
+          users in transforming your professional path with Rolio.
         </p>
         <Link
           to="/dashboard"
           className="flex items-center gap-3 justify-center border-2 border-orange-400 dark:border-orange-500 bg-gradient-to-r from-gray-100 to-orange-100 dark:from-gray-700 dark:to-orange-500 h-18 w-max mt-8 lg:mt-13 mb-7 lg:mb-16 rounded-xl py-3 px-4 text-xl font-bold text-black dark:text-white focus-visible:outline-blue-600"
         >
           <MdArrowOutward />
-          <span>Take Me To Dashboard</span>
+          <span>Take Me To My Dashboard</span>
         </Link>
       </div>
 
