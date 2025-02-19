@@ -255,25 +255,7 @@ export const JobDetails = () => {
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
-                <strong>Status:</strong>
-                <Select
-                  onValueChange={(value) => handleEditStatus(parseInt(value))}
-                  value={job?.status.toString()}
-                >
-                  <SelectTrigger className="border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-                    <SelectItem value="0">Wishlist</SelectItem>
-                    <SelectItem value="1">Applied</SelectItem>
-                    <SelectItem value="2">Interview</SelectItem>
-                    <SelectItem value="3">Offer</SelectItem>
-                    <SelectItem value="4">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {job?.status === 2 && (
+              {job?.status == 2 && (
                 <div className="flex flex-col gap-2">
                   <strong>Interview Date</strong>
                   <Popover>
@@ -293,15 +275,22 @@ export const JobDetails = () => {
                         )}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0 pointer-events-auto">
                       <Calendar
                         mode="single"
                         selected={new Date(job?.interview_date)}
                         onSelect={(date) => {
-                          editJob.mutate({
-                            jobId: job!._id,
-                            changes: { interview_date: date.toISOString() },
-                          });
+                          if (date) {
+                            editJob.mutate({
+                              jobId: job!._id,
+                              changes: { interview_date: date.toISOString() },
+                            });
+                          } else {
+                            editJob.mutate({
+                              jobId: job!._id,
+                              changes: { interview_date: "" },
+                            });
+                          }
                         }}
                         initialFocus
                       />
@@ -309,6 +298,26 @@ export const JobDetails = () => {
                   </Popover>
                 </div>
               )}
+
+              <div className="flex flex-col gap-2">
+                <strong>Status:</strong>
+                <Select
+                  onValueChange={(value) => handleEditStatus(parseInt(value))}
+                  value={job?.status.toString()}
+                >
+                  <SelectTrigger className="border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                    <SelectItem value="0">Wishlist</SelectItem>
+                    <SelectItem value="1">Applied</SelectItem>
+                    <SelectItem value="2">Interview</SelectItem>
+                    <SelectItem value="3">Offer</SelectItem>
+                    <SelectItem value="4">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* {job?.status === 3 && (
                 <div className="flex flex-col gap-2">
                   <strong>Contract Link:</strong>
