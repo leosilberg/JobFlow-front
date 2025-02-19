@@ -91,7 +91,6 @@ export default function CreateJobPage() {
     control: form.control,
     name: "company_logo",
   });
-
   const addJob = useAddJob();
 
   useEffect(() => {
@@ -153,17 +152,17 @@ export default function CreateJobPage() {
         }
       }}
     >
-      <DialogContent className="lg:max-w-2xl  h-[80vh] p-6 bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl overflow-hidden transition-colors duration-300 ease-in-out">
+      <DialogContent className="lg:max-w-2xl  h-[80svh] p-2 lg:p-6 bg-gradient-to-br from-white via-pink-100 to-pink-200 dark:from-gray-900 dark:via-gray-800 dark:to-black shadow-xl rounded-2xl overflow-hidden transition-colors duration-300 ease-in-out">
         <DialogHeader>
           <DialogTitle className="text-gray-800 flex items-center gap-3 dark:text-gray-100">
             Create Job <MdWorkOutline className="text-orange-600" />
           </DialogTitle>
         </DialogHeader>
-        <ScrollArea className="h-full p-4">
+        <ScrollArea className="h-full">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-4 px-4"
             >
               <div className="grid lg:grid-cols-2 gap-4">
                 <div className="lg:col-span-2 flex gap-4 justify-between items-end">
@@ -352,7 +351,7 @@ export default function CreateJobPage() {
                   )}
                 />
 
-                {status === 2 && (
+                {status == 2 && (
                   <FormField
                     control={form.control}
                     name="interview_date"
@@ -376,17 +375,22 @@ export default function CreateJobPage() {
                                 ) : (
                                   <span>Pick a date</span>
                                 )}
-                                <CalendarIcon className="ml-auto opacity-50" />
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
+                          <PopoverContent
+                            className="w-auto p-0 pointer-events-auto"
+                            align="start"
+                          >
                             <Calendar
                               mode="single"
                               selected={new Date(field.value)}
                               onSelect={(date) => {
                                 if (date) {
                                   field.onChange(date);
+                                } else {
+                                  field.onChange(undefined);
                                 }
                               }}
                               disabled={(date) =>
